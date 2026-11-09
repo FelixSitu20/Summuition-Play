@@ -1,0 +1,44 @@
+# Place only in the separate deployment repository AFTER validated player files
+# have been copied into site/. Do not add this workflow to the private game repo.
+name: Publish verified Summuition
+on: workflow_dispatch
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check the prepared player
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, pathlib
+          root = pathlib.Path('site')
+          manifest = json.loads((root/'publication-manifest.json').read_text())
+          assert manifest['product'] == 'Summuition' and manifest['manualBrowserChecksRecorded'] is True
+          allowed = {'.nojekyll', 'publication-manifest.json'}
+          for entry in manifest['files']:
+              relative = pathlib.PurePosixPath(entry['path'])
+              assert not relative.is_absolute() and '..' not in relative.parts and '\\' not in entry['path']
+              assert str(relative) == 'index.html' or relative.parts[0] in ('Build','TemplateData')
+              file = root/str(relative)
+              assert not file.is_symlink()
+              assert hashlib.sha256(file.read_bytes()).hexdigest() == entry['sha256']
+              allowed.add(str(relative))
+          assert {str(p.relative_to(root)) for p in root.rglob('*') if p.is_file()} == allowed
+          PY
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

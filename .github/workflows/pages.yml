@@ -1,0 +1,55 @@
+name: Publish Summuition device test
+on:
+  push:
+    branches: [main]
+    paths: ['site/**', '.github/workflows/pages.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify audited device-test payload
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, pathlib
+          root = pathlib.Path('site')
+          manifest = json.loads((root/'publication-manifest.json').read_text())
+          assert manifest['product'] == 'Summuition'
+          assert manifest['publicationMode'] == 'public-device-test'
+          assert manifest['publicDeviceTestAuthorized'] is True
+          assert manifest['contentAuditPassed'] is True
+          assert manifest['manualBrowserChecksRecorded'] is False
+          assert manifest['schoolChromebookVerified'] is False
+          assert manifest['verificationStatus']['schoolChromebook'] == 'pending'
+          allowed = {'.nojekyll', 'publication-manifest.json'}
+          assert len(manifest['files']) == 5
+          for entry in manifest['files']:
+              relative = pathlib.PurePosixPath(entry['path'])
+              assert not relative.is_absolute() and '..' not in relative.parts and '\\' not in entry['path']
+              assert str(relative) == 'index.html' or relative.parts[0] in ('Build','TemplateData')
+              file = root/str(relative)
+              assert not file.is_symlink() and file.stat().st_size < 100*1024*1024
+              assert hashlib.sha256(file.read_bytes()).hexdigest() == entry['sha256']
+              assert file.stat().st_size == entry['bytes']
+              allowed.add(str(relative))
+          assert {p.relative_to(root).as_posix() for p in root.rglob('*') if p.is_file()} == allowed
+          assert sum(p.stat().st_size for p in root.rglob('*') if p.is_file()) < 1024*1024*1024
+          PY
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - name: Deploy public device test
+        id: deployment
+        uses: actions/deploy-pages@v4

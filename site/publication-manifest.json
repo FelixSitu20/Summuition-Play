@@ -1,0 +1,43 @@
+{
+  "product": "Summuition",
+  "builtUtc": "2026-11-08T21:30:18.0653579Z",
+  "contentAuditSha256": "61d99d6409605f1016b66c14c13b31a5e6908e3ee01db5c45fa6a85099dbba1e",
+  "contentAuditPassed": true,
+  "publicationMode": "public-device-test",
+  "publicDeviceTestAuthorized": true,
+  "manualBrowserChecksRecorded": false,
+  "schoolChromebookVerified": false,
+  "verificationStatus": {
+    "desktopBasicSmoke": "passed",
+    "desktopUserReport": "working",
+    "schoolChromebook": "pending",
+    "completeGameplayAndAudibleAudio": "pending"
+  },
+  "files": [
+    {
+      "path": "Build/4d3318b28deb51fecfa9c68ff81b02a3.data.unityweb",
+      "sha256": "99ef959a947eb8baefa1b052d837184913f1d22319f992c95aa427651c74ed29",
+      "bytes": 4418502
+    },
+    {
+      "path": "Build/542228f81968261d1a603b313f14e0aa.framework.js.unityweb",
+      "sha256": "322aa555642ba1af7388035607fdbbff565ee769003f25a9765261d0e9441431",
+      "bytes": 91335
+    },
+    {
+      "path": "Build/6b662c76c544b41d65044d5bd679e374.loader.js",
+      "sha256": "175eb3acdef0f53a357177990352b728af9a607554e6b66edabc18ac5718f594",
+      "bytes": 40316
+    },
+    {
+      "path": "Build/ce07dfa3e61b813d8194c9c4b67d9cd8.wasm.unityweb",
+      "sha256": "8f6a3ba58462130d39ad0673c36a46b31bddb8ce6492f2ac3ff83e4b2807e18a",
+      "bytes": 8899195
+    },
+    {
+      "path": "index.html",
+      "sha256": "7ea2f9d0c5818e5178e74b6d58559bbbba60a022c9ede142d00c0170fd30da56",
+      "bytes": 2051
+    }
+  ]
+}

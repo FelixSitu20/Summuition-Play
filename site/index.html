@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer"><title>Summuition</title>
+<style>html,body{margin:0;width:100%;height:100%;background:#131314;color:#f2eee4;font:16px Georgia,serif}main{display:grid;place-items:center;height:100%}#game{width:min(100vw,160vh);aspect-ratio:8/5;position:relative}canvas{width:100%;height:100%;display:block;background:#1c1c1d;outline:1px solid #697079}#status{position:absolute;inset:0;display:grid;place-content:center;text-align:center;background:#131314;padding:2rem}progress{accent-color:#c4b797;width:min(70vw,24rem)}</style></head>
+<body><main><div id="game"><canvas id="canvas" width="1280" height="800" tabindex="0" aria-label="Summuition arithmetic game"></canvas><div id="status"><p id="message">Loading Summuition…</p><progress id="progress" max="1" value="0"></progress></div></div></main>
+<script>
+const statusPanel=document.getElementById('status');
+const message=document.getElementById('message');
+const fail=()=>{statusPanel.style.display='grid';message.textContent='The game could not load. Please reload or ask your teacher to check browser access.';document.getElementById('progress').hidden=true;};
+const script=document.createElement('script');
+script.src='Build/6b662c76c544b41d65044d5bd679e374.loader.js';
+script.onerror=fail;
+script.onload=()=>createUnityInstance(document.getElementById('canvas'),{
+  dataUrl:'Build/4d3318b28deb51fecfa9c68ff81b02a3.data.unityweb',frameworkUrl:'Build/542228f81968261d1a603b313f14e0aa.framework.js.unityweb',codeUrl:'Build/ce07dfa3e61b813d8194c9c4b67d9cd8.wasm.unityweb',
+  companyName:'Summuition',productName:'Summuition',productVersion:'1.0',
+  devicePixelRatio:1,matchWebGLToCanvasSize:true,
+  cacheControl:()=> 'no-store'
+},p=>document.getElementById('progress').value=p).then(()=>{statusPanel.style.display='none';document.getElementById('canvas').focus();}).catch(fail);
+document.body.appendChild(script);
+</script></body></html>

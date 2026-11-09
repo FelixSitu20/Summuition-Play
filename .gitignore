@@ -1,0 +1,17 @@
+# Output-only allowlist. The release audit remains authoritative.
+*
+!.gitignore
+!README.md
+!pages-workflow.example.yml
+!site/
+!site/index.html
+!site/.nojekyll
+!site/publication-manifest.json
+!site/Build/
+!site/Build/*.data.unityweb
+!site/Build/*.framework.js.unityweb
+!site/Build/*.loader.js
+!site/Build/*.wasm.unityweb
+!.github/
+!.github/workflows/
+!.github/workflows/pages.yml
