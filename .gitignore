@@ -15,3 +15,8 @@
 !.github/
 !.github/workflows/
 !.github/workflows/pages.yml
+# Public guest redirect only. Do not add Unity project files.
+!redirect/
+!redirect/index.html
+!redirect/.nojekyll
+!redirect/publication-manifest.json

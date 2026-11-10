@@ -1,0 +1,19 @@
+{
+  "product": "Summuition",
+  "publicationMode": "public-guest-redirect",
+  "targetUrl": "https://summuition-guest.cabledchime5.chatgpt.site/",
+  "schoolAuthentication": false,
+  "payloadContainsUnitySource": false,
+  "files": [
+    {
+      "path": "index.html",
+      "sha256": "a214a8a185cb9a9defcb0c9408251442fde6f48c985dfaeebc0ed0d81e81780a",
+      "bytes": 1248
+    },
+    {
+      "path": ".nojekyll",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  ]
+}
