@@ -38,3 +38,10 @@
 !tests/
 !tests/display.test.cjs
 !tests/verify-publication.py
+
+# Owner-authenticated supervised-play control (no credentials).
+!.github/workflows/play-switch.yml
+!owner/
+!owner/README.md
+!owner/set-session.py
+!tests/owner-control.test.py

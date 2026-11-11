@@ -1,0 +1,41 @@
+name: Summuition play switch
+run-name: '${{ inputs.action }} Summuition play'
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'STOP blocks normal entry. OPEN allows a new supervised session.'
+        required: true
+        type: choice
+        default: STOP
+        options:
+          - STOP
+          - OPEN
+      minutes:
+        description: 'Optional automatic end for OPEN: 1-240 minutes. 0 = no automatic end.'
+        required: false
+        default: '0'
+        type: string
+
+# GitHub supplies an ephemeral token to this job. No browser credentials or custom secrets.
+# This token expires after the job; the helper writes only the control branch.
+permissions:
+  contents: write
+
+concurrency:
+  group: summuition-play-switch
+  cancel-in-progress: false
+
+jobs:
+  switch:
+    if: github.event.repository.id == 1450788815 && github.actor == 'FelixSitu20' && github.triggering_actor == 'FelixSitu20'
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - name: Change only the session-control branch and check propagation
+        env:
+          SUMM_ACTION: ${{ inputs.action }}
+          SUMM_MINUTES: ${{ inputs.minutes }}
+        run: python3 owner/set-session.py

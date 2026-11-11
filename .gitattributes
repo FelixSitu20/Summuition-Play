@@ -2,3 +2,5 @@
 guest/** -text
 .github/workflows/*.yml text eol=lf
 tests/* text eol=lf
+
+owner/* text eol=lf
