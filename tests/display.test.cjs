@@ -40,6 +40,10 @@ const settle=()=>new Promise(r=>setImmediate(r));
   const scriptFailed=harness();scriptFailed.document.loader.onerror();assert.equal(scriptFailed.elements.progress.hidden,true);
   const low=harness({width:320,height:200,dpr:1});assert.equal(low.run('renderPixelRatio'),1);
   assert.match(html,/<span id="display-hint" role="status"><\/span>/);assert.ok(!html.includes('For the largest view, play fullscreen.'));assert.ok(!html.includes('SummSessionControl'));assert.match(html,/100dvh/);assert.match(html,/orientation:portrait/);assert.match(html,/Turn your phone sideways/);
+  const fullscreenToolbar=html.match(/#player:fullscreen #toolbar\s*\{([^}]+)\}/);
+  assert.ok(fullscreenToolbar,'Fullscreen toolbar rule remains explicit');
+  assert.match(fullscreenToolbar[1],/position:relative/,'Fullscreen control reserves a row outside the game canvas');
+  assert.doesNotMatch(fullscreenToolbar[1],/position:(absolute|fixed)/);
   const manifest=JSON.parse(fs.readFileSync('guest/publication-manifest.json'));
   for(const entry of manifest.files.filter(f=>f.path.includes('/Build/'))){
     const hash=crypto.createHash('sha256').update(fs.readFileSync('guest/'+entry.path)).digest('hex');assert.equal(hash,entry.sha256,entry.path+' changed');
