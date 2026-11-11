@@ -6,15 +6,15 @@
   "onlineCompetition": false,
   "localOnlyGuestBuild": false,
   "contentAuditPassed": true,
-  "contentAuditSha256": "a170b0102a4d0f09ebe759edf1d26294480c29b7fac0830def9053180d7d4b69",
-  "builtUtc": "2026-11-10T01:52:14.9433970Z",
-  "desktopBrowser": false,
+  "contentAuditSha256": "c00a6b3e49c74707d45d2f4ce3a9d9d45596a7e12c81facf3e2098265af706b2",
+  "builtUtc": "2026-11-11T01:56:28.9549366Z",
+  "desktopBrowser": true,
   "schoolChromebook": false,
   "audibleAudio": false,
   "releaseReady": false,
   "hostPresentation": {
     "path": "index.html",
-    "sha256": "d3efe5c2024e4b54c44d9d5cdf9bf54c984a0be80a43e6d0ff221eecfe3a1e0b"
+    "sha256": "8df50c633119b4fc17efca6e12c2351ea55fd3ab1b0cec537bd610a4ceebcf97"
   },
   "files": [
     {
@@ -23,34 +23,34 @@
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
-      "path": "game/Build/00c2033332b4485616b515d6429c1e75.data.unityweb",
-      "bytes": 4419785,
-      "sha256": "4c954faf07e8ba6ba2caec938c5497afb91247dbec575f3c530a967f7a61f4db"
+      "path": "game/Build/01930e1a648d25a0ae44e06207cdbe94.framework.js.unityweb",
+      "bytes": 91338,
+      "sha256": "93653abe0f055bb4007baecbb4a342209da0f3fcbbb9c31b25933dbff369bed7"
     },
     {
-      "path": "game/Build/5dbbf8e75189ea814f12391f059f8b75.loader.js",
+      "path": "game/Build/05e19ab93c8485038378d3a4c825128b.loader.js",
       "bytes": 40316,
-      "sha256": "50926a6107e0c8eb3c3f8326fd42c1d619b7182201a724e7e0059e395d728962"
+      "sha256": "bcd17cf3246ef56579ab0ae161132bd7904498e931fcaa8c0463b12f8c586cbc"
     },
     {
-      "path": "game/Build/6e74553fc4ea448da48db18917366bfd.wasm.unityweb",
-      "bytes": 8903303,
-      "sha256": "2a4f8b72263acdef4fd7ab858ab4e254fccfcdfad34b240d6d4621028070115a"
+      "path": "game/Build/1f6e1749760843601f4f180f511a47df.data.unityweb",
+      "bytes": 4420658,
+      "sha256": "5b9aff57d104006e09415cb173264dd6a656a6fe07311bb5f5f4a2b125ce960c"
     },
     {
-      "path": "game/Build/acf4d879455d61bca07e14f56a56bfc4.framework.js.unityweb",
-      "bytes": 91336,
-      "sha256": "f9f3d5ce963d08fcc836cc090bcac48819f79357f0015259431612d591dddecc"
+      "path": "game/Build/be7b4ec9981aff7dcc5a293902d5c6fe.wasm.unityweb",
+      "bytes": 8912472,
+      "sha256": "54e5498e3758371b4390b946ae06eb82decd34fb70b73abbeb8f31a597c4dd77"
     },
     {
       "path": "game/index.html",
-      "bytes": 6474,
-      "sha256": "cbb3d6001e735c3630192502e3b590dbcaa199c09dd2f54007dab104081cf6fe"
+      "bytes": 686473,
+      "sha256": "a1da43c2fb81b99105629d45efda452d9714a74620700beeed1f1e662247b128"
     },
     {
       "path": "index.html",
-      "bytes": 645264,
-      "sha256": "d3efe5c2024e4b54c44d9d5cdf9bf54c984a0be80a43e6d0ff221eecfe3a1e0b"
+      "bytes": 682139,
+      "sha256": "8df50c633119b4fc17efca6e12c2351ea55fd3ab1b0cec537bd610a4ceebcf97"
     },
     {
       "path": "robots.txt",
@@ -58,11 +58,13 @@
       "sha256": "a8f31103361fca68bef71fc69cff844b7c23bd3d64d2b872d74690cbda656bfc"
     }
   ],
-  "hostDisplayUpdatedUtc": "2026-11-10T09:10:13.260350+00:00",
+  "hostDisplayUpdatedUtc": "2026-11-11T02:07:23.157184+00:00",
   "hostDisplayValidation": {
     "automatedWrapperTests": true,
-    "compiledGameUnchanged": true,
-    "realAndroidBrowserVerified": false
+    "compiledGameUnchanged": false,
+    "realAndroidBrowserVerified": false,
+    "rebuiltPlayerAudited": true,
+    "actualPlayerDesktopSmokeTest": true
   },
   "publicationMode": "public-guest-direct",
   "hostingProvider": "GitHub Pages",
@@ -70,5 +72,13 @@
   "gameUrl": "https://felixsitu20.github.io/Summuition-Play/game/",
   "payloadContainsUnitySource": false,
   "originalGuestSourceCommit": "401896e",
-  "publishedPayloadPreparedUtc": "2026-11-11T01:06:44.987765+00:00"
+  "publishedPayloadPreparedUtc": "2026-11-11T02:07:23.157184+00:00",
+  "desktopBrowserValidation": {
+    "browser": "Microsoft Edge, isolated headless desktop context",
+    "completedThreePuzzleSession": true,
+    "settingsPauseResumeReload": true,
+    "fullscreenAndResponsiveLayout": true,
+    "audioAudibilityVerified": false,
+    "realAndroidBrowserVerified": false
+  }
 }

@@ -39,10 +39,10 @@ const settle=()=>new Promise(r=>setImmediate(r));
   const failed=harness({loader:'reject'});failed.document.loader.onload();await settle();assert.equal(failed.elements.status.style.display,'grid');assert.equal(failed.elements.progress.hidden,true);assert.match(failed.elements.message.textContent,/could not load/);
   const scriptFailed=harness();scriptFailed.document.loader.onerror();assert.equal(scriptFailed.elements.progress.hidden,true);
   const low=harness({width:320,height:200,dpr:1});assert.equal(low.run('renderPixelRatio'),1);
-  assert.match(html,/100dvh/);assert.match(html,/orientation:portrait/);assert.match(html,/Turn your phone sideways/);
+  assert.match(html,/<span id="display-hint" role="status"><\/span>/);assert.ok(!html.includes('For the largest view, play fullscreen.'));assert.ok(!html.includes('SummSessionControl'));assert.match(html,/100dvh/);assert.match(html,/orientation:portrait/);assert.match(html,/Turn your phone sideways/);
   const manifest=JSON.parse(fs.readFileSync('guest/publication-manifest.json'));
   for(const entry of manifest.files.filter(f=>f.path.includes('/Build/'))){
     const hash=crypto.createHash('sha256').update(fs.readFileSync('guest/'+entry.path)).digest('hex');assert.equal(hash,entry.sha256,entry.path+' changed');
   }
-  console.log('PASS: JavaScript syntax, portrait and landscape fit, 2.75x phone DPI, 4 MP limit, 1x displays, fullscreen enter/exit, repeated taps, rejected/unsupported fullscreen and orientation lock, loader success and failures, and all 4 compiled build hashes unchanged.');
+  console.log('PASS: JavaScript syntax, portrait and landscape fit, 2.75x phone DPI, 4 MP limit, 1x displays, fullscreen enter/exit, repeated taps, rejected/unsupported fullscreen and orientation lock, loader success and failures, and all 4 rebuilt player hashes match the publication manifest.');
 })().catch(e=>{console.error(e);process.exitCode=1});

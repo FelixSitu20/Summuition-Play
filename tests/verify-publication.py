@@ -8,12 +8,10 @@ from urllib.parse import urljoin, urlsplit
 
 root = Path(__file__).resolve().parents[1] / 'guest'
 base = 'https://felixsitu20.github.io/Summuition-Play/'
-expected_builds = {
-    'game/Build/00c2033332b4485616b515d6429c1e75.data.unityweb': '4c954faf07e8ba6ba2caec938c5497afb91247dbec575f3c530a967f7a61f4db',
-    'game/Build/5dbbf8e75189ea814f12391f059f8b75.loader.js': '50926a6107e0c8eb3c3f8326fd42c1d619b7182201a724e7e0059e395d728962',
-    'game/Build/6e74553fc4ea448da48db18917366bfd.wasm.unityweb': '2a4f8b72263acdef4fd7ab858ab4e254fccfcdfad34b240d6d4621028070115a',
-    'game/Build/acf4d879455d61bca07e14f56a56bfc4.framework.js.unityweb': 'f9f3d5ce963d08fcc836cc090bcac48819f79357f0015259431612d591dddecc',
-}
+expected_builds = {'game/Build/01930e1a648d25a0ae44e06207cdbe94.framework.js.unityweb': '93653abe0f055bb4007baecbb4a342209da0f3fcbbb9c31b25933dbff369bed7',
+ 'game/Build/05e19ab93c8485038378d3a4c825128b.loader.js': 'bcd17cf3246ef56579ab0ae161132bd7904498e931fcaa8c0463b12f8c586cbc',
+ 'game/Build/1f6e1749760843601f4f180f511a47df.data.unityweb': '5b9aff57d104006e09415cb173264dd6a656a6fe07311bb5f5f4a2b125ce960c',
+ 'game/Build/be7b4ec9981aff7dcc5a293902d5c6fe.wasm.unityweb': '54e5498e3758371b4390b946ae06eb82decd34fb70b73abbeb8f31a597c4dd77'}
 expected_files = set(expected_builds) | {'index.html', 'game/index.html', 'robots.txt', '.nojekyll', 'publication-manifest.json'}
 expected_dirs = {'game', 'game/Build'}
 assert all(not p.is_symlink() for p in root.rglob('*')), 'Symlinks are not allowed'
@@ -29,7 +27,9 @@ assert manifest['onlineCompetition'] is False
 assert manifest['payloadContainsUnitySource'] is False
 assert manifest['publicUrl'] == base
 assert manifest['gameUrl'] == base + 'game/'
-assert manifest['hostDisplayValidation']['compiledGameUnchanged'] is True
+assert manifest['hostDisplayValidation']['compiledGameUnchanged'] is False
+assert manifest['hostDisplayValidation']['rebuiltPlayerAudited'] is True
+assert manifest['contentAuditSha256'] == 'c00a6b3e49c74707d45d2f4ce3a9d9d45596a7e12c81facf3e2098265af706b2'
 entries = manifest['files']
 assert len(entries) == len(expected_files) - 1
 assert {e['path'] for e in entries} == expected_files - {'publication-manifest.json'}
@@ -84,6 +84,6 @@ for file in expected_builds:
         assert unpacked
         if '.wasm.' in file:
             assert unpacked.startswith(b'\x00asm')
-loader = (root / 'game/Build/5dbbf8e75189ea814f12391f059f8b75.loader.js').read_text()
+loader = (root / 'game/Build/05e19ab93c8485038378d3a4c825128b.loader.js').read_text()
 assert 'gzip' in loader
-print('PASS: exact build-only payload, all file sizes and hashes, original compiled assets, relative project paths, no redirect or hosting UI, mobile wrapper, and gzip/WebAssembly integrity.')
+print('PASS: exact build-only payload, all file sizes and hashes, audited rebuilt player assets, relative project paths, no redirect or hosting UI, mobile wrapper, and gzip/WebAssembly integrity.')
