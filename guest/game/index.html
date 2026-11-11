@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<title>Summuition</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#131314;color:#f2eee4;font:16px Georgia,serif}
+#player{height:100%;height:100dvh;display:flex;flex-direction:column;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);background:#131314}
+#toolbar{min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 12px;flex-shrink:0}
+#toolbar span{font:12px/1.4 system-ui,sans-serif;color:#b7b5ad}
+button{min-height:36px;border:1px solid #8f8979;border-radius:3px;background:#283a50;color:#f2eee4;padding:8px 14px;font:14px/1.2 system-ui,sans-serif;cursor:pointer}
+button:hover{background:#344a64}button:focus-visible{outline:2px solid #e0d4b5;outline-offset:3px}button:disabled{opacity:.6;cursor:wait}
+#rotate{display:none;text-align:center;padding:14px 22px 8px;flex-shrink:0;font:15px/1.5 system-ui,sans-serif}
+#rotate strong{display:block;color:#e0d4b5;font-size:21px;margin-bottom:6px}
+#rotate p{margin:0;max-width:32rem;margin-inline:auto;color:#b7b5ad}
+#stage{flex:1;min-width:0;min-height:0;display:grid;place-items:center;overflow:hidden}
+#game{width:100%;max-width:160vh;aspect-ratio:8/5;position:relative;flex-shrink:0}
+canvas{width:100%;height:100%;display:block;background:#1c1c1d;outline:none;touch-action:none}
+#status{position:absolute;inset:0;display:grid;place-content:center;text-align:center;background:#131314;padding:1rem;font:15px/1.5 system-ui,sans-serif}
+progress{accent-color:#c4b797;width:min(70vw,24rem)}
+#player:fullscreen #toolbar{position:absolute;top:env(safe-area-inset-top,0px);right:env(safe-area-inset-right,0px);z-index:3}
+#player:fullscreen #toolbar span{display:none}
+#player:fullscreen #fullscreen{background:#131314d9}
+@media(max-width:900px) and (orientation:portrait){#rotate{display:block}#stage{align-items:start;padding-top:12px}#toolbar span{max-width:14rem}}
+</style>
+</head>
+<body>
+<main id="player">
+<div id="toolbar"><span id="display-hint" role="status">For the largest view, play fullscreen.</span><button id="fullscreen" type="button">Fullscreen</button></div>
+<section id="rotate" aria-label="Phone display guidance"><strong>Turn your phone sideways</strong><p>Summuition plays in landscape. Tap Fullscreen for a larger view, then rotate your phone if needed.</p></section>
+<div id="stage"><div id="game"><canvas id="canvas" width="1280" height="800" tabindex="0" aria-label="Summuition arithmetic game"></canvas><div id="status"><p id="message">Loading Summuition.</p><progress id="progress" max="1" value="0"></progress></div></div></div>
+</main>
+<script>
+'use strict';
+const player=document.getElementById('player');
+const stage=document.getElementById('stage');
+const game=document.getElementById('game');
+const canvas=document.getElementById('canvas');
+const statusPanel=document.getElementById('status');
+const message=document.getElementById('message');
+const fullscreenButton=document.getElementById('fullscreen');
+const displayHint=document.getElementById('display-hint');
+let unityInstance=null;
+let renderPixelRatio=1;
+let fullscreenPending=false;
+// Honor high-density phones without allowing an unbounded render target.
+function fitGame(){
+  const stageStyle=getComputedStyle(stage);
+  const availableWidth=Math.max(1,stage.clientWidth);
+  const availableHeight=Math.max(1,stage.clientHeight-parseFloat(stageStyle.paddingTop||0)-parseFloat(stageStyle.paddingBottom||0));
+  const width=Math.min(availableWidth,availableHeight*8/5);
+  const height=width*5/8;
+  game.style.width=width+'px';
+  game.style.height=height+'px';
+  renderPixelRatio=Math.min(window.devicePixelRatio||1,3,Math.sqrt(4000000/(width*height)));
+  if(unityInstance)unityInstance.Module.devicePixelRatio=renderPixelRatio;
+}
+function syncFullscreen(){
+  fullscreenButton.textContent=document.fullscreenElement?'Exit fullscreen':'Fullscreen';
+  fitGame();
+}
+async function toggleFullscreen(){
+  if(fullscreenPending)return;
+  fullscreenPending=true;
+  fullscreenButton.disabled=true;
+  try{
+    if(document.fullscreenElement){
+      await document.exitFullscreen();
+    }else if(player.requestFullscreen){
+      await player.requestFullscreen();
+      if(window.matchMedia('(pointer:coarse)').matches && screen.orientation && screen.orientation.lock){
+        try{await screen.orientation.lock('landscape');}
+        catch{displayHint.textContent='Turn your phone sideways for the largest view.';}
+      }
+    }else{
+      displayHint.textContent='Fullscreen is unavailable here. Turn your phone sideways for a larger view.';
+    }
+  }catch{
+    displayHint.textContent='Fullscreen was not available. Turn your phone sideways or open this link in your browser.';
+  }finally{
+    fullscreenPending=false;
+    fullscreenButton.disabled=false;
+    syncFullscreen();
+    canvas.focus({preventScroll:true});
+  }
+}
+fullscreenButton.addEventListener('click',toggleFullscreen);
+document.addEventListener('fullscreenchange',syncFullscreen);
+window.addEventListener('resize',fitGame);
+if(window.visualViewport)window.visualViewport.addEventListener('resize',fitGame);
+if(typeof ResizeObserver!=='undefined')new ResizeObserver(fitGame).observe(stage);
+fitGame();
+const fail=()=>{statusPanel.style.display='grid';message.textContent='The game could not load. Please reload or ask your teacher to check browser access.';document.getElementById('progress').hidden=true;};
+const script=document.createElement('script');
+script.src='Build/5dbbf8e75189ea814f12391f059f8b75.loader.js';
+script.onerror=fail;
+script.onload=()=>createUnityInstance(canvas,{
+  dataUrl:'Build/00c2033332b4485616b515d6429c1e75.data.unityweb',
+  frameworkUrl:'Build/acf4d879455d61bca07e14f56a56bfc4.framework.js.unityweb',
+  codeUrl:'Build/6e74553fc4ea448da48db18917366bfd.wasm.unityweb',
+  companyName:'Summuition',productName:'Summuition',productVersion:'1.0',
+  devicePixelRatio:renderPixelRatio,matchWebGLToCanvasSize:true,
+  cacheControl:()=> 'no-store'
+},p=>document.getElementById('progress').value=p).then(instance=>{
+  unityInstance=instance;
+  fitGame();
+  statusPanel.style.display='none';
+  canvas.focus({preventScroll:true});
+}).catch(fail);
+document.body.appendChild(script);
+</script>
+</body>
+</html>

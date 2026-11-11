@@ -1,0 +1,4 @@
+# Preserve exact audited payload bytes on Windows and GitHub runners.
+guest/** -text
+.github/workflows/*.yml text eol=lf
+tests/* text eol=lf

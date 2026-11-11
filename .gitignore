@@ -20,3 +20,21 @@
 !redirect/index.html
 !redirect/.nojekyll
 !redirect/publication-manifest.json
+
+# Approved direct-hosted guest build and release checks only.
+!.gitattributes
+!guest/
+!guest/.nojekyll
+!guest/index.html
+!guest/robots.txt
+!guest/publication-manifest.json
+!guest/game/
+!guest/game/index.html
+!guest/game/Build/
+!guest/game/Build/*.data.unityweb
+!guest/game/Build/*.framework.js.unityweb
+!guest/game/Build/*.loader.js
+!guest/game/Build/*.wasm.unityweb
+!tests/
+!tests/display.test.cjs
+!tests/verify-publication.py

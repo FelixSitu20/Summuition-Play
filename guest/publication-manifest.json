@@ -1,0 +1,74 @@
+{
+  "product": "Summuition",
+  "channel": "public-guest-test",
+  "access": "public-no-authentication",
+  "schoolAuthentication": false,
+  "onlineCompetition": false,
+  "localOnlyGuestBuild": false,
+  "contentAuditPassed": true,
+  "contentAuditSha256": "a170b0102a4d0f09ebe759edf1d26294480c29b7fac0830def9053180d7d4b69",
+  "builtUtc": "2026-11-10T01:52:14.9433970Z",
+  "desktopBrowser": false,
+  "schoolChromebook": false,
+  "audibleAudio": false,
+  "releaseReady": false,
+  "hostPresentation": {
+    "path": "index.html",
+    "sha256": "d3efe5c2024e4b54c44d9d5cdf9bf54c984a0be80a43e6d0ff221eecfe3a1e0b"
+  },
+  "files": [
+    {
+      "path": ".nojekyll",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "game/Build/00c2033332b4485616b515d6429c1e75.data.unityweb",
+      "bytes": 4419785,
+      "sha256": "4c954faf07e8ba6ba2caec938c5497afb91247dbec575f3c530a967f7a61f4db"
+    },
+    {
+      "path": "game/Build/5dbbf8e75189ea814f12391f059f8b75.loader.js",
+      "bytes": 40316,
+      "sha256": "50926a6107e0c8eb3c3f8326fd42c1d619b7182201a724e7e0059e395d728962"
+    },
+    {
+      "path": "game/Build/6e74553fc4ea448da48db18917366bfd.wasm.unityweb",
+      "bytes": 8903303,
+      "sha256": "2a4f8b72263acdef4fd7ab858ab4e254fccfcdfad34b240d6d4621028070115a"
+    },
+    {
+      "path": "game/Build/acf4d879455d61bca07e14f56a56bfc4.framework.js.unityweb",
+      "bytes": 91336,
+      "sha256": "f9f3d5ce963d08fcc836cc090bcac48819f79357f0015259431612d591dddecc"
+    },
+    {
+      "path": "game/index.html",
+      "bytes": 6474,
+      "sha256": "cbb3d6001e735c3630192502e3b590dbcaa199c09dd2f54007dab104081cf6fe"
+    },
+    {
+      "path": "index.html",
+      "bytes": 645264,
+      "sha256": "d3efe5c2024e4b54c44d9d5cdf9bf54c984a0be80a43e6d0ff221eecfe3a1e0b"
+    },
+    {
+      "path": "robots.txt",
+      "bytes": 28,
+      "sha256": "a8f31103361fca68bef71fc69cff844b7c23bd3d64d2b872d74690cbda656bfc"
+    }
+  ],
+  "hostDisplayUpdatedUtc": "2026-11-10T09:10:13.260350+00:00",
+  "hostDisplayValidation": {
+    "automatedWrapperTests": true,
+    "compiledGameUnchanged": true,
+    "realAndroidBrowserVerified": false
+  },
+  "publicationMode": "public-guest-direct",
+  "hostingProvider": "GitHub Pages",
+  "publicUrl": "https://felixsitu20.github.io/Summuition-Web/",
+  "gameUrl": "https://felixsitu20.github.io/Summuition-Web/game/",
+  "payloadContainsUnitySource": false,
+  "originalGuestSourceCommit": "401896e",
+  "publishedPayloadPreparedUtc": "2026-11-11T01:06:44.987765+00:00"
+}
