@@ -108,7 +108,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 
 *{box-sizing:border-box}
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#292a2d;color:#d4d0c6;font:18px Beholden,Georgia,serif}
-#player{height:100%;height:100dvh;display:flex;flex-direction:column;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);background:#292a2d}
+#player{position:relative;height:100%;height:100dvh;display:flex;flex-direction:column;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);background:#292a2d}
 #toolbar{min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 16px;flex-shrink:0}
 #toolbar span{font:16px/1.4 Beholden,Georgia,serif;color:#a4a7aa}
 button{position:relative;isolation:isolate;min-height:40px;flex-shrink:0;border:0;border-radius:0;background:#3b3d40;color:#d4d0c6;padding:10px 24px;font:700 18px/1.2 Beholden,Georgia,serif;cursor:pointer}
@@ -122,10 +122,15 @@ button:hover{background:#bcb5a6;color:#303236}button:focus-visible{outline:2px s
 canvas{width:100%;height:100%;display:block;background:#292a2d;outline:none;touch-action:none}
 #status{position:absolute;inset:0;display:grid;place-content:center;text-align:center;background:#292a2d;padding:1rem;font:20px/1.5 Beholden,Georgia,serif}
 progress{accent-color:#a4a7aa;width:min(70vw,24rem)}
-/* Keep fullscreen controls in their own layout row, never over the game HUD. */
-#player:fullscreen #toolbar{position:relative;justify-content:flex-end}
+/* Compact exit icon uses the free top-right corner, not a canvas-shrinking row. */
+#player:fullscreen #toolbar{position:absolute;z-index:10;top:2px;right:2px;min-height:0;padding:0;justify-content:flex-end}
 #player:fullscreen #toolbar span{display:none}
+#player:fullscreen #fullscreen{width:28px;min-width:28px;height:28px;min-height:28px;padding:4px;line-height:1}
 #player:fullscreen #fullscreen{background:#3b3d40ed}
+#player:fullscreen #fullscreen:before{border-width:3px;border-left-width:4px;border-right-width:4px}
+#player:fullscreen #fullscreen svg{display:block;width:20px;height:20px;fill:currentColor}
+/* Keep guidance and controls separate on unusually narrow/portrait screens. */
+@media(max-width:520px),(orientation:portrait){#player:fullscreen #toolbar{position:relative;top:auto;right:auto;min-height:32px;padding:2px 6px}}
 @media(max-width:900px) and (orientation:portrait){#rotate{display:block}#stage{align-items:start;padding-top:12px}#toolbar{padding-inline:12px}#toolbar span{max-width:14rem;font-size:15px}button{padding-inline:20px}}
 </style>
 </head>
@@ -162,7 +167,11 @@ function fitGame(){
   if(unityInstance)unityInstance.Module.devicePixelRatio=renderPixelRatio;
 }
 function syncFullscreen(){
-  fullscreenButton.textContent=document.fullscreenElement?'Exit fullscreen':'Fullscreen';
+  const active=!!document.fullscreenElement;
+  if(active)fullscreenButton.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 16H3v2h5v-5H6v3zm-3-8h3v3h2V6H3v2zm13 10h5v-2h-3v-3h-2v5zm2-10h3V6h-5v5h2V8z"/></svg>';
+  else fullscreenButton.textContent='Fullscreen';
+  fullscreenButton.ariaLabel=active?'Exit fullscreen':'Enter fullscreen';
+  fullscreenButton.title=active?'Exit fullscreen (Esc)':'Fullscreen';
   fitGame();
 }
 async function toggleFullscreen(){
@@ -199,12 +208,12 @@ fitGame();
 const fail=()=>{statusPanel.style.display='grid';message.textContent='The game could not load. Please reload or ask your teacher to check browser access.';document.getElementById('progress').hidden=true;};
 function startGame(){
 const script=document.createElement('script');
-script.src='Build/06f2f50118d6c62777956e6373217276.loader.js';
+script.src='Build/2b9b9fd1157108970ca3910ce1148fad.loader.js';
 script.onerror=fail;
 script.onload=()=>createUnityInstance(canvas,{
-  dataUrl:'Build/10256c8412213f77472fbb7364b2587c.data.unityweb',
-  frameworkUrl:'Build/e82244ae30901e37f16aba751a92b270.framework.js.unityweb',
-  codeUrl:'Build/46d12bc8fcfa4b8173e67e6eabf57f18.wasm.unityweb',
+  dataUrl:'Build/e2a118f8a80db8fca8456478f23d4775.data.unityweb',
+  frameworkUrl:'Build/f11db4db1d7bc69f80f18bba0474d31b.framework.js.unityweb',
+  codeUrl:'Build/ff72c4b0033466f63d25848b13fd94cf.wasm.unityweb',
   companyName:'Summuition',productName:'Summuition',productVersion:'1.0',
   devicePixelRatio:renderPixelRatio,matchWebGLToCanvasSize:true,
   cacheControl:()=> 'no-store'
