@@ -1,5 +1,11 @@
 # Summuition
 
+## Owner play switch
+
+[Open STOP / OPEN controls](https://github.com/FelixSitu20/Summuition-Play/actions/workflows/play-switch.yml) while signed in as FelixSitu20. Select **Run workflow**, leave **STOP** selected, then run it. Choose **OPEN** to resume.
+
+GitHub caching means changes can take several minutes. This controls normal new entry and connected pages using the gate; it cannot revoke downloaded copies. [Operation and limitations](owner/README.md).
+
 Public device-test build of the standalone Summuition arithmetic game.
 School Chromebook compatibility testing is **pending**.
 

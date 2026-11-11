@@ -23,6 +23,10 @@ jobs:
         run: python3 tests/verify-publication.py
       - name: Verify mobile display and unchanged compiled game
         run: node tests/display.test.cjs
+      - name: Verify session gate and isolated owner control
+        run: |
+          node tests/session-control.test.cjs
+          python3 tests/owner-control.test.py
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

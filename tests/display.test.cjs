@@ -16,7 +16,7 @@ function harness({width=393,height=600,dpr=2.75,coarse=true,fullscreen=true,lock
   const document={fullscreenElement:null,getElementById:id=>elements[id],createElement:()=>({}),addEventListener(n,f){events[n]=f},body:{appendChild(s){document.loader=s}},async exitFullscreen(){document.fullscreenElement=null;if(events.fullscreenchange)events.fullscreenchange()}};
   if(fullscreen)elements.player.requestFullscreen=async()=>{fullscreenCalls++;document.fullscreenElement=elements.player;if(events.fullscreenchange)events.fullscreenchange()};
   const module={};
-  const context={document,window:{devicePixelRatio:dpr,matchMedia:()=>({matches:coarse}),addEventListener(n,f){events[n]=f},visualViewport:{addEventListener(){}}},screen:{orientation:{async lock(value){assert.equal(value,'landscape');lockCalls++;if(lock==='reject')throw Error('unsupported')}}},getComputedStyle:()=>({paddingTop:'0px',paddingBottom:'0px'}),ResizeObserver:class{observe(){}},createUnityInstance(c,config,progress){loads++;document.config=config;progress(.5);return loader==='success'?Promise.resolve({Module:module}):Promise.reject(Error('load error'))}};
+  const context={document,window:{SummSessionControl:{create(o){return {start(){o.onAllowed()},recheck(){},isActive(){return true}}}},location:{replace(){}},devicePixelRatio:dpr,matchMedia:()=>({matches:coarse}),addEventListener(n,f){events[n]=f},visualViewport:{addEventListener(){}}},screen:{orientation:{async lock(value){assert.equal(value,'landscape');lockCalls++;if(lock==='reject')throw Error('unsupported')}}},getComputedStyle:()=>({paddingTop:'0px',paddingBottom:'0px'}),ResizeObserver:class{observe(){}},createUnityInstance(c,config,progress){loads++;document.config=config;progress(.5);return loader==='success'?Promise.resolve({Module:module}):Promise.reject(Error('load error'))}};
   vm.createContext(context);vm.runInContext(source,context);
   return {elements,document,context,events,module,stats:()=>({fullscreenCalls,lockCalls,loads}),run:s=>vm.runInContext(s,context)};
 }
@@ -39,7 +39,7 @@ const settle=()=>new Promise(r=>setImmediate(r));
   const failed=harness({loader:'reject'});failed.document.loader.onload();await settle();assert.equal(failed.elements.status.style.display,'grid');assert.equal(failed.elements.progress.hidden,true);assert.match(failed.elements.message.textContent,/could not load/);
   const scriptFailed=harness();scriptFailed.document.loader.onerror();assert.equal(scriptFailed.elements.progress.hidden,true);
   const low=harness({width:320,height:200,dpr:1});assert.equal(low.run('renderPixelRatio'),1);
-  assert.match(html,/<span id="display-hint" role="status"><\/span>/);assert.ok(!html.includes('For the largest view, play fullscreen.'));assert.ok(!html.includes('SummSessionControl'));assert.match(html,/100dvh/);assert.match(html,/orientation:portrait/);assert.match(html,/Turn your phone sideways/);
+  assert.match(html,/<span id="display-hint" role="status"><\/span>/);assert.ok(!html.includes('For the largest view, play fullscreen.'));assert.ok(html.includes('onAllowed:startGame'));assert.match(html,/100dvh/);assert.match(html,/orientation:portrait/);assert.match(html,/Turn your phone sideways/);
   const fullscreenToolbar=html.match(/#player:fullscreen #toolbar\s*\{([^}]+)\}/);
   assert.ok(fullscreenToolbar,'Fullscreen toolbar rule remains explicit');
   assert.match(fullscreenToolbar[1],/position:relative/,'Fullscreen control reserves a row outside the game canvas');

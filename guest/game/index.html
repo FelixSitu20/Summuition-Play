@@ -135,6 +135,7 @@ progress{accent-color:#a4a7aa;width:min(70vw,24rem)}
 <section id="rotate" aria-label="Phone display guidance"><strong>Turn your phone sideways</strong><p>Summuition plays in landscape.</p></section>
 <div id="stage"><div id="game"><canvas id="canvas" width="1280" height="800" tabindex="0" aria-label="Summuition arithmetic game"></canvas><div id="status"><p id="message">Loading Summuition.</p><progress id="progress" max="1" value="0"></progress></div></div></div>
 </main>
+<script src="../session-control.js"></script>
 <script>
 'use strict';
 const player=document.getElementById('player');
@@ -196,6 +197,7 @@ if(window.visualViewport)window.visualViewport.addEventListener('resize',fitGame
 if(typeof ResizeObserver!=='undefined')new ResizeObserver(fitGame).observe(stage);
 fitGame();
 const fail=()=>{statusPanel.style.display='grid';message.textContent='The game could not load. Please reload or ask your teacher to check browser access.';document.getElementById('progress').hidden=true;};
+function startGame(){
 const script=document.createElement('script');
 script.src='Build/7dde3caca2626383dbd8d9d24c9168b8.loader.js';
 script.onerror=fail;
@@ -207,12 +209,34 @@ script.onload=()=>createUnityInstance(canvas,{
   devicePixelRatio:renderPixelRatio,matchWebGLToCanvasSize:true,
   cacheControl:()=> 'no-store'
 },p=>document.getElementById('progress').value=p).then(instance=>{
+  if(!sessionGate.isActive()){if(instance.Quit)instance.Quit();return;}
   unityInstance=instance;
   fitGame();
   statusPanel.style.display='none';
   canvas.focus({preventScroll:true});
 }).catch(fail);
 document.body.appendChild(script);
+}
+function endSession(reason){
+  // Navigation destroys the Unity document and audio; downloaded copies are outside this control.
+  canvas.style.visibility='hidden';
+  fullscreenButton.disabled=true;
+  if(unityInstance&&unityInstance.Quit){try{Promise.resolve(unityInstance.Quit()).catch(()=>{});}catch{}}
+  window.location.replace('../session-ended.html?reason='+encodeURIComponent(reason));
+}
+const sessionGate=window.SummSessionControl?window.SummSessionControl.create({
+  onAllowed:startGame,
+  onDenied:endSession,
+  onStatus:text=>{if(!unityInstance)message.textContent=text==='Session open.'?'Loading Summuition.':text;}
+}):null;
+if(sessionGate){
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)sessionGate.recheck();});
+  window.addEventListener('pageshow',()=>sessionGate.recheck());
+  window.addEventListener('online',()=>sessionGate.recheck());
+  sessionGate.start();
+}else{
+  endSession('unreachable');
+}
 </script>
 </body>
 </html>

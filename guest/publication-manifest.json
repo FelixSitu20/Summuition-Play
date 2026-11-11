@@ -44,8 +44,8 @@
     },
     {
       "path": "game/index.html",
-      "bytes": 686513,
-      "sha256": "46c57b9ce471b409ecec264ebdda27cc59c11324bf89819a1159511b8ef0378b"
+      "bytes": 687594,
+      "sha256": "73fa705f4a9cf8dfcdc94bb009e680fc9fc5ae8e498c177ad94d5eef36285485"
     },
     {
       "path": "index.html",
@@ -56,6 +56,16 @@
       "path": "robots.txt",
       "bytes": 28,
       "sha256": "a8f31103361fca68bef71fc69cff844b7c23bd3d64d2b872d74690cbda656bfc"
+    },
+    {
+      "path": "session-control.js",
+      "bytes": 4700,
+      "sha256": "dcde683415b90718593ce2a90d3d1aadb78bdc81b2d1ee7797421ad401b28d4d"
+    },
+    {
+      "path": "session-ended.html",
+      "bytes": 682389,
+      "sha256": "a8e061318238db055cba164b60a445cb105ceb8a4f253bd0ef41a7b1745b3607"
     }
   ],
   "hostDisplayUpdatedUtc": "2026-11-11T03:28:23.122386+00:00",
@@ -100,5 +110,16 @@
       "inkOnParchment": 6.3,
       "silverOnTable": 5.38
     }
+  },
+  "sessionControl": {
+    "mode": "github-owner-workflow-public-signal",
+    "repositoryId": 1450788815,
+    "accessControl": false,
+    "pollIntervalSeconds": 3,
+    "connectionFailureBehavior": "block-new-entry-continue-current-play",
+    "automaticEnd": "only-if-owner-selects-duration",
+    "realOwnerControlTestedOnCandidate": true,
+    "observedStopPropagationSeconds": 118,
+    "compiledAssetsUnchangedByGate": true
   }
 }

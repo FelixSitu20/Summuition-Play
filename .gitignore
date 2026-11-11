@@ -45,3 +45,9 @@
 !owner/README.md
 !owner/set-session.py
 !tests/owner-control.test.py
+
+# Public cooperative session gate and local test harnesses.
+!guest/session-control.js
+!guest/session-ended.html
+!tests/session-control.test.cjs
+!tests/session-browser.test.cjs

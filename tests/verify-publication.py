@@ -12,7 +12,7 @@ expected_builds = {'game/Build/01930e1a648d25a0ae44e06207cdbe94.framework.js.uni
  'game/Build/7dde3caca2626383dbd8d9d24c9168b8.loader.js': '965780690010f05ed0524e3868fd8e0bf33ffa17b21018dd4db094220e0419f1',
  'game/Build/a8f21063a1d02cc5cb0732ed3107e7e9.wasm.unityweb': 'a32ae1885aec550299c60cebf810bea580c696555dc180544bf6fef604b38925',
  'game/Build/bf9c4a3ce13d51421d36b8719f2bbc08.data.unityweb': '73d0f597262b158fd4f474bafbc199268c27f4675448bb7d29931d7d7034dfb2'}
-expected_files = set(expected_builds) | {'index.html', 'game/index.html', 'robots.txt', '.nojekyll', 'publication-manifest.json'}
+expected_files = set(expected_builds) | {'index.html', 'game/index.html', 'robots.txt', '.nojekyll', 'publication-manifest.json', 'session-control.js', 'session-ended.html'}
 expected_dirs = {'game', 'game/Build'}
 assert all(not p.is_symlink() for p in root.rglob('*')), 'Symlinks are not allowed'
 assert {p.relative_to(root).as_posix() for p in root.rglob('*') if p.is_file()} == expected_files
@@ -55,10 +55,16 @@ class Links(HTMLParser):
             if key in attrs:
                 self.refs.append(attrs[key])
 
-for name in ('index.html', 'game/index.html'):
+for name in ('index.html', 'game/index.html', 'session-ended.html'):
     html = (root / name).read_text()
     assert 'chatgpt' not in html.lower()
-    assert 'window.location' not in html
+    if name != 'game/index.html':
+        assert 'window.location' not in html
+    else:
+        assert html.count('window.location') == 1
+        assert "window.location.replace('../session-ended.html?reason='+encodeURIComponent(reason));" in html
+        assert '<script src="../session-control.js"></script>' in html
+        assert 'onAllowed:startGame' in html
     assert '<iframe' not in html.lower()
     page = Links()
     page.feed(html)
@@ -70,12 +76,22 @@ for name in ('index.html', 'game/index.html'):
         assert page.refs == ['game/']
         assert 'School sign-in is not enabled.' in html
         assert hashlib.sha256((root / name).read_bytes()).hexdigest() == manifest['hostPresentation']['sha256']
-    else:
+    elif name == 'game/index.html':
         for file in expected_builds:
             assert "'" + file.removeprefix('game/') + "'" in html
         assert 'devicePixelRatio:renderPixelRatio' in html
         assert 'Turn your phone sideways' in html
         assert 'requestFullscreen' in html
+
+control = (root / 'session-control.js').read_text()
+assert 'https://raw.githubusercontent.com/FelixSitu20/' in control
+assert 'statusUrlFor(scriptUrl)' in control
+assert "credentials:'omit'" in control and "cache:'no-store'" in control
+assert "redirect:'error'" in control
+assert 'Play continues while we retry.' in control
+assert not any(secret in control for secret in ('Authorization', 'ghp_', 'github_pat_'))
+assert manifest['sessionControl']['repositoryId'] == 1450788815
+assert manifest['sessionControl']['accessControl'] is False
 
 # Unity's built-in fallback handles its gzip payload without custom response headers.
 for file in expected_builds:
@@ -86,4 +102,4 @@ for file in expected_builds:
             assert unpacked.startswith(b'\x00asm')
 loader = (root / 'game/Build/7dde3caca2626383dbd8d9d24c9168b8.loader.js').read_text()
 assert 'gzip' in loader
-print('PASS: exact build-only payload, all file sizes and hashes, audited rebuilt player assets, relative project paths, no redirect or hosting UI, mobile wrapper, and gzip/WebAssembly integrity.')
+print('PASS: exact build-only payload, all file sizes and hashes, audited rebuilt player assets, relative project paths, no external hosting redirect or UI, mobile wrapper, and gzip/WebAssembly integrity.')
