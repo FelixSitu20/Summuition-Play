@@ -7,7 +7,7 @@ from pathlib import Path
 from urllib.parse import urljoin, urlsplit
 
 root = Path(__file__).resolve().parents[1] / 'guest'
-base = 'https://felixsitu20.github.io/Summuition-Web/'
+base = 'https://felixsitu20.github.io/Summuition-Play/'
 expected_builds = {
     'game/Build/00c2033332b4485616b515d6429c1e75.data.unityweb': '4c954faf07e8ba6ba2caec938c5497afb91247dbec575f3c530a967f7a61f4db',
     'game/Build/5dbbf8e75189ea814f12391f059f8b75.loader.js': '50926a6107e0c8eb3c3f8326fd42c1d619b7182201a724e7e0059e395d728962',
@@ -65,7 +65,7 @@ for name in ('index.html', 'game/index.html'):
     for ref in page.refs:
         resolved = urlsplit(urljoin(base + name, ref))
         assert resolved.netloc == 'felixsitu20.github.io'
-        assert resolved.path.startswith('/Summuition-Web/')
+        assert resolved.path.startswith('/Summuition-Play/')
     if name == 'index.html':
         assert page.refs == ['game/']
         assert 'School sign-in is not enabled.' in html
