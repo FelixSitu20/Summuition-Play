@@ -50,3 +50,6 @@ const settle=()=>new Promise(r=>setImmediate(r));
   }
   console.log('PASS: JavaScript syntax, portrait and landscape fit, 2.75x phone DPI, 4 MP limit, 1x displays, fullscreen enter/exit, repeated taps, rejected/unsupported fullscreen and orientation lock, loader success and failures, and all 4 rebuilt player hashes match the publication manifest.');
 })().catch(e=>{console.error(e);process.exitCode=1});
+
+// Keep the softer palette and legibility checks in the existing publication gate.
+require('./palette.test.cjs');

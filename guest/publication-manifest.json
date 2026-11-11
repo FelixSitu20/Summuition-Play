@@ -6,15 +6,15 @@
   "onlineCompetition": false,
   "localOnlyGuestBuild": false,
   "contentAuditPassed": true,
-  "contentAuditSha256": "e8f54d62a139bb4f49735c7adadbb6a369fd8cea198943b627e2284ce7c82997",
-  "builtUtc": "2026-11-11T02:41:50.6760297Z",
+  "contentAuditSha256": "a2237c7490192d36d2d83ac201349e5ce72aef4f02aaf7cc2917b89c024d06e0",
+  "builtUtc": "2026-11-11T03:27:58.3844322Z",
   "desktopBrowser": true,
   "schoolChromebook": false,
   "audibleAudio": false,
   "releaseReady": false,
   "hostPresentation": {
     "path": "index.html",
-    "sha256": "8df50c633119b4fc17efca6e12c2351ea55fd3ab1b0cec537bd610a4ceebcf97"
+    "sha256": "c46113a4e761d141bffaefccd5d0a5f0a06ca29600965181036d05e96fd6f6fe"
   },
   "files": [
     {
@@ -25,32 +25,32 @@
     {
       "path": "game/Build/01930e1a648d25a0ae44e06207cdbe94.framework.js.unityweb",
       "bytes": 91338,
-      "sha256": "f411484669179a06a61fa5ebae592b12c9d940a74d7ceedc5eaf4706c649e560"
+      "sha256": "aeb73e34ca5f4ae12c3c4f11d1220571103e9c71ac1f601f83544fc9ad78cfa1"
     },
     {
-      "path": "game/Build/91643ecd044cb6df69560ef6c1495535.wasm.unityweb",
-      "bytes": 8912473,
-      "sha256": "21b920d978f091140c94d29e19cfd2e8cf0e9aa581eb85dec827197234c0af88"
-    },
-    {
-      "path": "game/Build/9e807b12ae1919b75ddfacdeefc9b0b5.loader.js",
+      "path": "game/Build/7dde3caca2626383dbd8d9d24c9168b8.loader.js",
       "bytes": 40316,
-      "sha256": "18337dbfa5400c98b6eb47f5eac827bf114a69663e3599b7166d6523b202995c"
+      "sha256": "965780690010f05ed0524e3868fd8e0bf33ffa17b21018dd4db094220e0419f1"
     },
     {
-      "path": "game/Build/be6dcb69ebc70856fe607123d9cdfd4f.data.unityweb",
-      "bytes": 4420649,
-      "sha256": "9884073206ba28ed331e3911894923d7d390288561d03578742017cad4afc3b9"
+      "path": "game/Build/a8f21063a1d02cc5cb0732ed3107e7e9.wasm.unityweb",
+      "bytes": 8910747,
+      "sha256": "a32ae1885aec550299c60cebf810bea580c696555dc180544bf6fef604b38925"
+    },
+    {
+      "path": "game/Build/bf9c4a3ce13d51421d36b8719f2bbc08.data.unityweb",
+      "bytes": 4421182,
+      "sha256": "73d0f597262b158fd4f474bafbc199268c27f4675448bb7d29931d7d7034dfb2"
     },
     {
       "path": "game/index.html",
-      "bytes": 686499,
-      "sha256": "72afe5a062167f34a7be29774c058486de197904f948b8e2ac1225043727c145"
+      "bytes": 686513,
+      "sha256": "46c57b9ce471b409ecec264ebdda27cc59c11324bf89819a1159511b8ef0378b"
     },
     {
       "path": "index.html",
       "bytes": 682139,
-      "sha256": "8df50c633119b4fc17efca6e12c2351ea55fd3ab1b0cec537bd610a4ceebcf97"
+      "sha256": "c46113a4e761d141bffaefccd5d0a5f0a06ca29600965181036d05e96fd6f6fe"
     },
     {
       "path": "robots.txt",
@@ -58,7 +58,7 @@
       "sha256": "a8f31103361fca68bef71fc69cff844b7c23bd3d64d2b872d74690cbda656bfc"
     }
   ],
-  "hostDisplayUpdatedUtc": "2026-11-11T02:42:11.433320+00:00",
+  "hostDisplayUpdatedUtc": "2026-11-11T03:28:23.122386+00:00",
   "hostDisplayValidation": {
     "automatedWrapperTests": true,
     "compiledGameUnchanged": false,
@@ -73,16 +73,32 @@
   "gameUrl": "https://felixsitu20.github.io/Summuition-Play/game/",
   "payloadContainsUnitySource": false,
   "originalGuestSourceCommit": "401896e",
-  "publishedPayloadPreparedUtc": "2026-11-11T02:42:11.433320+00:00",
+  "publishedPayloadPreparedUtc": "2026-11-11T03:28:23.122386+00:00",
   "desktopBrowserValidation": {
     "browser": "Microsoft Edge, isolated headless desktop context",
     "completedThreePuzzleSession": true,
     "allSetupChoiceRowsExercised": true,
     "settingsPauseResumeReload": true,
     "fullscreenAndResponsiveLayout": true,
+    "desktop1080pAnd720p": true,
     "directPauseClickInFullscreen": true,
     "fullscreenLayoutChecks": 16,
+    "mobileSizeEmulation": true,
     "audioAudibilityVerified": false,
     "realAndroidBrowserVerified": false
+  },
+  "presentationValidation": {
+    "palette": "soft charcoal, muted parchment, ivory and silver",
+    "existingLayoutPreserved": true,
+    "existingFontsAndArtworkPreserved": true,
+    "nativeChecksPassed": 9,
+    "nativeChecksFailed": 0,
+    "native1080pAnd720pRenders": true,
+    "paperLuminanceRatioToPrevious": 0.543,
+    "paletteTextContrastChecks": {
+      "letteringOnControls": 7.08,
+      "inkOnParchment": 6.3,
+      "silverOnTable": 5.38
+    }
   }
 }
