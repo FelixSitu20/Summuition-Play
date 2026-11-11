@@ -31,6 +31,32 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: guest
+      - name: Wait for uploaded Pages artifact visibility
+        shell: python3 {0}
+        run: |
+          import json, os, time, urllib.request
+          repository = os.environ["GITHUB_REPOSITORY"]
+          run_id = os.environ["GITHUB_RUN_ID"]
+          commit = os.environ["GITHUB_SHA"]
+          endpoint = f"https://api.github.com/repos/{repository}/actions/runs/{run_id}/artifacts"
+          for attempt in range(12):
+              request = urllib.request.Request(endpoint + f"?per_page=100&check={attempt}",
+                  headers={"User-Agent": "Summuition-Pages-verification", "Cache-Control": "no-cache"})
+              try:
+                  with urllib.request.urlopen(request, timeout=10) as response:
+                      artifacts = json.load(response).get("artifacts", [])
+                  matches = [item for item in artifacts if item.get("name") == "github-pages"
+                      and not item.get("expired", True)
+                      and item.get("workflow_run", {}).get("head_sha") == commit]
+                  if len(matches) == 1:
+                      print("Uploaded artifact is visible for this exact commit.")
+                      time.sleep(5)
+                      break
+              except Exception as error:
+                  print(f"Artifact metadata is not ready: {type(error).__name__}")
+              time.sleep(5)
+          else:
+              raise SystemExit("Uploaded Pages artifact did not become visible; deployment held.")
       - name: Deploy public guest game
         id: deployment
         uses: actions/deploy-pages@v4
