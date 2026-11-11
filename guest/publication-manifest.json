@@ -6,8 +6,8 @@
   "onlineCompetition": false,
   "localOnlyGuestBuild": false,
   "contentAuditPassed": true,
-  "contentAuditSha256": "a2237c7490192d36d2d83ac201349e5ce72aef4f02aaf7cc2917b89c024d06e0",
-  "builtUtc": "2026-11-11T03:27:58.3844322Z",
+  "contentAuditSha256": "a7da77b946976bc1424bde3182c516790bd46cf827e3091cec4a04cf0ee778e3",
+  "builtUtc": "2026-11-11T05:46:45.7068739Z",
   "desktopBrowser": true,
   "schoolChromebook": false,
   "audibleAudio": false,
@@ -23,29 +23,29 @@
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
-      "path": "game/Build/01930e1a648d25a0ae44e06207cdbe94.framework.js.unityweb",
-      "bytes": 91338,
-      "sha256": "aeb73e34ca5f4ae12c3c4f11d1220571103e9c71ac1f601f83544fc9ad78cfa1"
-    },
-    {
-      "path": "game/Build/7dde3caca2626383dbd8d9d24c9168b8.loader.js",
+      "path": "game/Build/06f2f50118d6c62777956e6373217276.loader.js",
       "bytes": 40316,
-      "sha256": "965780690010f05ed0524e3868fd8e0bf33ffa17b21018dd4db094220e0419f1"
+      "sha256": "fb529e0f6a2d8ca1f27f9ca4ca89526d34459f015e6165eb2821487aa4b6e1a3"
     },
     {
-      "path": "game/Build/a8f21063a1d02cc5cb0732ed3107e7e9.wasm.unityweb",
-      "bytes": 8910747,
-      "sha256": "a32ae1885aec550299c60cebf810bea580c696555dc180544bf6fef604b38925"
+      "path": "game/Build/10256c8412213f77472fbb7364b2587c.data.unityweb",
+      "bytes": 4586177,
+      "sha256": "3abbdecd287124ad95913b5c77d37af86173d773cb77fce0e6bc3a1535cc0806"
     },
     {
-      "path": "game/Build/bf9c4a3ce13d51421d36b8719f2bbc08.data.unityweb",
-      "bytes": 4421182,
-      "sha256": "73d0f597262b158fd4f474bafbc199268c27f4675448bb7d29931d7d7034dfb2"
+      "path": "game/Build/46d12bc8fcfa4b8173e67e6eabf57f18.wasm.unityweb",
+      "bytes": 8915064,
+      "sha256": "2925d8dfbeb1831157fe37a951fe7d9653cc04389ec9e51bb3858229a4be5dd7"
+    },
+    {
+      "path": "game/Build/e82244ae30901e37f16aba751a92b270.framework.js.unityweb",
+      "bytes": 91340,
+      "sha256": "f2da2dc1aa14de37cd3d01bc0b408aca791da57c9942f34545d77827600c2cca"
     },
     {
       "path": "game/index.html",
       "bytes": 687594,
-      "sha256": "73fa705f4a9cf8dfcdc94bb009e680fc9fc5ae8e498c177ad94d5eef36285485"
+      "sha256": "048d192cc6aedf9525218356c4fdfaa6991d739a9a3902f4921159bde30a3d11"
     },
     {
       "path": "index.html",
@@ -68,7 +68,7 @@
       "sha256": "a8e061318238db055cba164b60a445cb105ceb8a4f253bd0ef41a7b1745b3607"
     }
   ],
-  "hostDisplayUpdatedUtc": "2026-11-11T03:28:23.122386+00:00",
+  "hostDisplayUpdatedUtc": "2026-11-11T05:47:16.699075+00:00",
   "hostDisplayValidation": {
     "automatedWrapperTests": true,
     "compiledGameUnchanged": false,
@@ -83,19 +83,27 @@
   "gameUrl": "https://felixsitu20.github.io/Summuition-Play/game/",
   "payloadContainsUnitySource": false,
   "originalGuestSourceCommit": "401896e",
-  "publishedPayloadPreparedUtc": "2026-11-11T03:28:23.122386+00:00",
+  "publishedPayloadPreparedUtc": "2026-11-11T05:47:16.699075+00:00",
   "desktopBrowserValidation": {
-    "browser": "Microsoft Edge, isolated headless desktop context",
-    "completedThreePuzzleSession": true,
-    "allSetupChoiceRowsExercised": true,
-    "settingsPauseResumeReload": true,
-    "fullscreenAndResponsiveLayout": true,
-    "desktop1080pAnd720p": true,
-    "directPauseClickInFullscreen": true,
-    "fullscreenLayoutChecks": 16,
-    "mobileSizeEmulation": true,
+    "status": "passed final audited player in isolated Edge browser",
+    "observed": [
+      "home/settings/custom options",
+      "three-puzzle session with independently verified true optima and rejection of nonoptimal orders",
+      "pause/resume and fullscreen",
+      "enabled gold hover and disabled reorder no-hover",
+      "existing curved-arrow artwork in three/five-card layouts",
+      "five-card tutorial exact-six success and return to setup",
+      "cannon projectile movement",
+      "five-card red five-second warning",
+      "1920x1080 and 1280x720 desktop gameplay",
+      "390x844 portrait and 844x390 landscape gameplay"
+    ],
+    "gateRegression": "actual Unity load, blocked entry, stop unload, outage resilience and changed session tested in isolated local browser; live control untouched",
+    "hardRangeExpert": "native tests and 672 identical seeded pre/post cases; not separately exercised in browser",
+    "scoreAward": "native session tests; non-tutorial optimal win also observed in prior compiled player with identical protected gameplay source",
     "audioAudibilityVerified": false,
-    "realAndroidBrowserVerified": false
+    "realAndroidBrowserVerified": false,
+    "verifiedUtc": "2026-11-11T05:50:56.533340+00:00"
   },
   "presentationValidation": {
     "palette": "soft charcoal, muted parchment, ivory and silver",
@@ -121,5 +129,21 @@
     "realOwnerControlTestedOnCandidate": true,
     "observedStopPropagationSeconds": 118,
     "compiledAssetsUnchangedByGate": true
+  },
+  "gameRules": {
+    "highestLowest": "exact attainable optimum; tied arrangements accepted",
+    "hardRange": "unchanged inclusive bounds",
+    "expert": "unchanged",
+    "changedModeScoreVersion": "summuition-v2-optima",
+    "expertScoreVersion": "summuition-v1"
+  },
+  "gamePresentation": {
+    "style": "neutral charcoal #292A2D, raised slots #424448 with silver #A1A3A5 borders; ivory cards/text and gold snake hover retained; existing frames and unfilled cannon inset unchanged; existing curved-arrow sprite rotated to fit the card row",
+    "nativeRulesChecks": 39,
+    "nativePresentationCases": 9,
+    "nativeResolutions": [
+      "1920x1080",
+      "1280x720"
+    ]
   }
 }
