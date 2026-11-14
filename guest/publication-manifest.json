@@ -6,8 +6,8 @@
   "onlineCompetition": false,
   "localOnlyGuestBuild": false,
   "contentAuditPassed": true,
-  "contentAuditSha256": "62e833ff5d147e71a6544d1ad481b765961abe7397491c9f06e0df416ac88ffd",
-  "builtUtc": "2026-11-12T04:12:01.4015232Z",
+  "contentAuditSha256": "32e11f307502ed69e768a94430dda1ef15326df2d4ccac29ed021a17cc0f1f82",
+  "builtUtc": "2026-11-14T15:39:24.2703401Z",
   "desktopBrowser": true,
   "schoolChromebook": false,
   "audibleAudio": false,
@@ -23,29 +23,54 @@
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
-      "path": "game/Build/1cec2071820252c00cc385dfea2f5c4c.framework.js.unityweb",
-      "bytes": 91341,
-      "sha256": "3a3674fcc97f754efdf6819f3d12d936a0858c51c8dc5bfc7a91f7394ad900ce"
+      "path": "game/Build/0d9ad81115ae12624f762359f4d24cf8.wasm.unityweb",
+      "bytes": 11088502,
+      "sha256": "16d2cb63a29b5f0cb56b7ada4c98f1c44065648e129127908448a36485ff803a"
     },
     {
-      "path": "game/Build/4fe2c969c73ee0435399ca2bb01fd860.wasm.unityweb",
-      "bytes": 8937345,
-      "sha256": "46868cc2f6805d5538fc3ce6fa3136642f483e79fea6fca58c3397ce02f02318"
+      "path": "game/Build/76b139e2b4ceb9f330cdeb18147eb9b6.framework.js.unityweb",
+      "bytes": 96517,
+      "sha256": "e0b7cf8dab90382c4418fefbe3896f4a0a784139b2b076c258dbd3851e3d9afa"
     },
     {
-      "path": "game/Build/92d40ba8ea3e97090d1856cabf70c783.data.unityweb",
-      "bytes": 4590194,
-      "sha256": "bdb1da2fda248c7969dc8bd6eef60ba3c877fe7b965a89be6ae1de5f153baf91"
-    },
-    {
-      "path": "game/Build/b563bb5d68040dafde396014bcc16fc2.loader.js",
+      "path": "game/Build/8031f098453b3d8c0b09b4651393a967.loader.js",
       "bytes": 40316,
-      "sha256": "17d1d89a562906b4852deda73b103b97c669b7599a1613bd51245b68848e1fd4"
+      "sha256": "8d59a4ef91eb83f903743e0146abe5877aee107461d880d552bb004754cc915f"
+    },
+    {
+      "path": "game/Build/a8af3598b7ebb005456299f3297ff594.data.unityweb",
+      "bytes": 5358541,
+      "sha256": "420a0daaaa4299ab09270c3ab2ce939f8755dda0f36887da1c782efafa80cac6"
     },
     {
       "path": "game/index.html",
       "bytes": 688549,
-      "sha256": "b5cb7bd2d1be193536b42a9d653a28aa4717f4a97b88b0a014c47e00eb27f53a"
+      "sha256": "a13620150ae4a7f4a5edf56d0319b1d9505ad95dc6c3828bf9bc9b00f14e40f1"
+    },
+    {
+      "path": "game/summuition-peer/engine.mjs",
+      "bytes": 6215,
+      "sha256": "8eee600ac1ad074e46b77a69266509145a0e88a9aad5ca0d504e060bb733c0d4"
+    },
+    {
+      "path": "game/summuition-peer/math.mjs",
+      "bytes": 4039,
+      "sha256": "171a5a7a3dad3b258c99a3cd7b63844dbd4cfa491cbec2da21696e0b6947eacf"
+    },
+    {
+      "path": "game/summuition-peer/puzzles.json",
+      "bytes": 34660,
+      "sha256": "a84987d228c9664a2d6d3ffb36d971bb3a69d57f5932f9f6c02ba98276aa1c1a"
+    },
+    {
+      "path": "game/summuition-peer/transport.mjs",
+      "bytes": 9334,
+      "sha256": "ab34bda09f11ffde658cbc09e552b589ec7fb5ab1b6ba5395734b71c2dab5b91"
+    },
+    {
+      "path": "game/summuition-peer/unity-peer-bridge.mjs",
+      "bytes": 16299,
+      "sha256": "3499bc53d126a4cf0b8499a220d9e2533e37d1c1c929aff65e31b70998a82ca6"
     },
     {
       "path": "index.html",
@@ -86,26 +111,24 @@
   "gameUrl": "https://felixsitu20.github.io/Summuition-Play/game/",
   "payloadContainsUnitySource": false,
   "originalGuestSourceCommit": "401896e",
-  "publishedPayloadPreparedUtc": "2026-11-12T04:13:01.814014+00:00",
+  "publishedPayloadPreparedUtc": "2026-11-14T15:54:51.123612+00:00",
   "desktopBrowserValidation": {
-    "status": "passed exact compiled player with isolated browser-only OPEN response; no live switch mutation",
-    "verifiedUtc": "2026-11-12T04:16:58.220Z",
-    "screenshotCheckpoints": 53,
+    "status": "passed fresh audited player in isolated desktop Edge",
     "observed": [
-      "2/3/4/5 card support, stable digit and numpad shortcuts",
-      "complete queue auto-plays at expiry; partial queue times out",
-      "twelve real sessions retain newest ten with ordered detail after reload",
-      "modal key guards, nickname, history Escape, fullscreen and responsive sizing",
-      "Home View History fully contained inside frame"
+      "Quick Play loads new palette and pixel figures",
+      "Highest-value objective visible",
+      "Number keys queue cards",
+      "Control clears queue",
+      "Space plays expression"
     ],
     "limits": [
-      "exact tied-root cases verified natively, not deterministically reproduced in browser",
-      "no audible-audio or physical Chromebook/Android verification"
+      "Separate-device PvP not configured",
+      "No school Chromebook or audible audio verification"
     ]
   },
   "presentationValidation": {
     "palette": "near-black title surround, charcoal framed interiors, ivory cards and silver/gold ornaments",
-    "sourceStage": "20261112-040243-541",
+    "sourceStage": "20261114-102415-739",
     "guestLanding": "minimal retro framed entry with collapsed Privacy & access"
   },
   "sessionControl": {
@@ -134,22 +157,10 @@
     "localTimeout": "full queue auto-plays once; partial queue times out"
   },
   "gamePresentation": {
-    "style": "near-black title surround, charcoal framed panels, ivory cards and silver/gold decorations",
-    "nativeRulesChecks": 50,
-    "nativePresentationCases": 4,
-    "nativeResolutions": [
-      "1920x1080",
-      "1280x720"
-    ],
-    "nativeQueueWarningCases": 6,
-    "queueWarning": "Only unqueued cards stay bright; modal dismisses without queueing; local timer pauses while open",
-    "currentNumberNearArrow": true,
-    "separateSetupFrames": true,
-    "customPlayFooterHidden": true,
-    "unavailableCompeteDimmed": true,
-    "nativeHistoryChecks": 6,
-    "localHistory": "newest ten game sessions, browser/device-local only",
-    "handHotkeys": "stable numbered slots 1 through card count",
-    "homeHistoryFrameContained": true
+    "style": "near-black, charcoal, ivory, framed controls and pixel characters",
+    "handHotkeys": "1 through card count",
+    "resetHotkey": "Control",
+    "playHotkey": "Space",
+    "multiplayer": "UI and local prototype only; public separate-device connection service not configured"
   }
 }
