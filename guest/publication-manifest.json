@@ -6,8 +6,8 @@
   "onlineCompetition": false,
   "localOnlyGuestBuild": false,
   "contentAuditPassed": true,
-  "contentAuditSha256": "29c6d29005ea1694ddb644bc197e1950ef4a4c79e7f5985bd52651c4dbeea0c2",
-  "builtUtc": "2026-11-14T16:34:06.5321138Z",
+  "contentAuditSha256": "1fcbd719a1194aa3ab90ff64de2650fd119dbd011310a456d3123d6b23996db9",
+  "builtUtc": "2026-11-14T18:21:18.1013715Z",
   "desktopBrowser": true,
   "schoolChromebook": false,
   "audibleAudio": false,
@@ -23,29 +23,29 @@
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
-      "path": "game/Build/24742d8454629bc3ae438ff5d402449f.data.unityweb",
-      "bytes": 5414896,
-      "sha256": "e12df88f480b157fd06581b5878575a125434baf33f3351448f68b35f804261c"
+      "path": "game/Build/45602152548a1daf81bc496ec1e62b6a.data.unityweb",
+      "bytes": 5414354,
+      "sha256": "7e9df258b30da152c0829bbb26e570f4f591d2d29709bcc0bc7cd62b390f62e2"
     },
     {
-      "path": "game/Build/330abb07bf7d1ed14ead1d6e9c1a144f.loader.js",
+      "path": "game/Build/882bb2615940bf746a5874873d1a55d8.loader.js",
       "bytes": 40316,
-      "sha256": "175b6a323a3fd360b1debc7ae6244b417f678786cf989bc752c9e890247374e6"
+      "sha256": "cf7afd837484d527be7b8721ce69eb8dd40e78d35180a64b4e696ef36673fe32"
+    },
+    {
+      "path": "game/Build/aabb7729bbfda26183ed117f45aeb44e.wasm.unityweb",
+      "bytes": 11092945,
+      "sha256": "21c6a85b2e6cb80b5294e382876ca364fd74201f5af4036ecf91a8643b9d8585"
     },
     {
       "path": "game/Build/b034a33a55d600964f959ff72a72632c.framework.js.unityweb",
       "bytes": 96521,
-      "sha256": "08463d1af902e176fced8de067e97798ca4a7b5db03b21a9d26edc9dd3a6bc82"
-    },
-    {
-      "path": "game/Build/c2c68c304505577a7fde77d23e28e7a3.wasm.unityweb",
-      "bytes": 11093196,
-      "sha256": "6014abcdc772ce5d673941d64c848b12bff18b1360316f75b07adfaa61de19aa"
+      "sha256": "64ea2133ca3fbf8fad7993b8cea71fe03fcb09c58ca78f9213682e00efea6757"
     },
     {
       "path": "game/index.html",
       "bytes": 688549,
-      "sha256": "3431144b1e8fc7e846bf2b9eee4314f0303368ddfd278101cc4d516a87b94afd"
+      "sha256": "ef57b872c0e263de06c8a2aabd640c85b858b3f78d71403d9953bd75c1109309"
     },
     {
       "path": "game/summuition-peer/engine.mjs",
@@ -64,8 +64,8 @@
     },
     {
       "path": "game/summuition-peer/transport.mjs",
-      "bytes": 9334,
-      "sha256": "ab34bda09f11ffde658cbc09e552b589ec7fb5ab1b6ba5395734b71c2dab5b91"
+      "bytes": 15032,
+      "sha256": "ae5be3ea31f3e1611cb1f15359d441969cf2806f4bc9d4d58bc5775210a6549c"
     },
     {
       "path": "game/summuition-peer/unity-peer-bridge.mjs",
@@ -111,15 +111,15 @@
   "gameUrl": "https://felixsitu20.github.io/Summuition-Play/game/",
   "payloadContainsUnitySource": false,
   "originalGuestSourceCommit": "401896e",
-  "publishedPayloadPreparedUtc": "2026-11-14T16:37:38.847514+00:00",
+  "publishedPayloadPreparedUtc": "2026-11-14T18:24:24.593870+00:00",
   "desktopBrowserValidation": {
     "status": "passed exact compiled player with Android touch emulation in desktop Edge",
     "observed": [
-      "Four-digit keypad max length, Delete, Clear",
-      "Host sends request and Back returns safely",
-      "Matching retro frames on home and PvP lobby",
-      "Solo missed puzzle changes player10HP to9HP",
-      "17 pure health assertions: miss, timeout, pause, correct answer, completion"
+      "Expanded framed PvP lobby and Back clearance",
+      "Four-digit same-browser Host/Join with real WebRTC",
+      "Aligned setup controls and readable history",
+      "Spaced Play (Space), Reset (Control), and equal-width Finish Session",
+      "Simultaneous-answer, collision, reload and disconnect regression tests in real Edge tabs"
     ],
     "limits": [
       "Real Android device not directly tested",
@@ -129,7 +129,7 @@
   },
   "presentationValidation": {
     "palette": "near-black title surround, charcoal framed interiors, ivory cards and silver/gold ornaments",
-    "sourceStage": "20261114-162510-163",
+    "sourceStage": "20261114-181121-048",
     "guestLanding": "minimal retro framed entry with collapsed Privacy & access"
   },
   "sessionControl": {
@@ -162,7 +162,7 @@
     "handHotkeys": "1 through card count",
     "resetHotkey": "Control",
     "playHotkey": "Space",
-    "multiplayer": "UI and local prototype only; public separate-device connection service not configured",
+    "multiplayer": "Same-origin same-browser/profile two-tab peer play; separate-device service deferred",
     "touchRoomCode": "Four-digit on-screen keypad with Delete/Clear",
     "soloMiss": "Loses one player HP per missed or timed-out puzzle",
     "hitSound": "Existing Punch Thud2 at animation contact"

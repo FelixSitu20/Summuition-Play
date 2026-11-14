@@ -20,7 +20,8 @@ export class PeerLink {
       const messages = { 400: 'Enter a four-digit room code.', 403: 'This connection is no longer available.',
         404: 'Room not found. Ask the host for a new code.', 409: 'That room already has two players.',
         503: 'The local helper is full. Try again shortly.' };
-      throw new Error(messages[response.status] || 'The local connection helper could not complete this request.');
+      const error = new Error(messages[response.status] || 'The local connection helper could not complete this request.');
+      error.status = response.status; throw error;
     }
     return response.json();
   }
@@ -108,7 +109,12 @@ export class PeerLink {
     throw new Error(this.closed ? 'Connection closed.' : 'No peer connected. Create a new room to try again.');
   }
   async host() {
-    const room = await this.request('/signal/create', {}, false);
+    let room;
+    try { room = await this.request('/signal/create', {}, false); }
+    catch (error) {
+      if ([404, 405, 501].includes(error.status) && !this.closed) return this.hostSameBrowser();
+      throw error;
+    }
     this.role = 'host'; this.code = room.code; this.token = room.token; this.onRoom(this.code, this.role);
     this.makeConnection(); this.attachChannel(this.pc.createDataChannel('summuition-peer-v1', { ordered: true }));
     await this.pc.setLocalDescription(await this.pc.createOffer()); await this.gather();
@@ -118,7 +124,12 @@ export class PeerLink {
     this.watchOpening();
   }
   async join(code) {
-    const room = await this.request('/signal/join', { code }, false);
+    let room;
+    try { room = await this.request('/signal/join', { code }, false); }
+    catch (error) {
+      if ([404, 405, 501].includes(error.status) && !this.closed) return this.joinSameBrowser(code);
+      throw error;
+    }
     this.role = 'guest'; this.code = room.code; this.token = room.token; this.onRoom(this.code, this.role);
     this.makeConnection();
     const offer = await this.pollFor('offer');
@@ -126,6 +137,94 @@ export class PeerLink {
     await this.pc.setLocalDescription(await this.pc.createAnswer()); await this.gather();
     await this.request('/signal/answer', { code: this.code, sdp: this.pc.localDescription.sdp });
     this.watchOpening();
+  }
+  // Static hosting has no /signal API. Exchange only SDP between tabs on the
+  // same origin/profile; the existing RTCDataChannel still carries gameplay.
+  // Web Locks gives each four-digit code one live owner, released on tab exit.
+  requireSameBrowser() {
+    if (typeof BroadcastChannel !== 'function' || !globalThis.navigator?.locks)
+      throw new Error('Local rooms need a browser with same-device tab support.');
+    if (this.closed) throw new Error('Connection closed.');
+    this.localMode = true;
+  }
+  async reserveLocalCode() {
+    for (let i = 0; i < 32 && !this.closed; i++) {
+      const code = String(crypto.getRandomValues(new Uint32Array(1))[0] % 10000).padStart(4, '0');
+      const acquired = await new Promise((resolve, reject) => {
+        navigator.locks.request('summuition-room-v1-' + code, { ifAvailable: true }, lock => {
+          if (!lock || this.closed) { resolve(false); return; }
+          return new Promise(release => { this.releaseLocalRoom = release; resolve(true); });
+        }).catch(reject);
+      });
+      if (acquired) return code;
+    }
+    throw new Error('Could not reserve a local room. Try again.');
+  }
+  localSignal(message) {
+    if (!this.closed && this.localBus) this.localBus.postMessage({ version: 1, ...message });
+  }
+  async hostSameBrowser() {
+    this.requireSameBrowser();
+    this.role = 'host'; this.code = await this.reserveLocalCode();
+    if (this.closed) { this.releaseLocalRoom?.(); return; }
+    this.localBus = new BroadcastChannel('summuition-room-v1-' + this.code);
+    this.makeConnection(); this.attachChannel(this.pc.createDataChannel('summuition-peer-v1', { ordered: true }));
+    await this.pc.setLocalDescription(await this.pc.createOffer()); await this.gather();
+    if (this.closed) return;
+    const offer = this.pc.localDescription.sdp;
+    this.localBus.onmessage = async ({ data: message }) => {
+      if (this.closed || !message || message.version !== 1 ||
+          typeof message.guest !== 'string' || !/^[a-f0-9-]{36}$/.test(message.guest)) return;
+      if (message.kind === 'join') {
+        if (this.localGuest && this.localGuest !== message.guest) {
+          this.localSignal({ kind: 'full', guest: message.guest }); return;
+        }
+        this.localGuest = message.guest;
+        this.localSignal({ kind: 'offer', guest: message.guest, sdp: offer });
+      } else if (message.kind === 'answer' && message.guest === this.localGuest && !this.localAnswered &&
+                 typeof message.sdp === 'string' && message.sdp.length < 32768) {
+        this.localAnswered = true; clearTimeout(this.localWaitTimer);
+        try { await this.pc.setRemoteDescription({ type: 'answer', sdp: message.sdp }); this.watchOpening(); }
+        catch { if (!this.closed) this.close('Local connection failed. Create another room.', false); }
+      }
+    };
+    this.localWaitTimer = setTimeout(() => this.close('No local player joined. Create another room.', false), 120000);
+    this.onRoom(this.code, this.role);
+  }
+  async joinSameBrowser(code) {
+    this.requireSameBrowser();
+    if (!/^\d{4}$/.test(code)) throw new Error('Enter a four-digit room code.');
+    this.role = 'guest'; this.code = code;
+    this.localGuest = crypto.randomUUID();
+    this.localBus = new BroadcastChannel('summuition-room-v1-' + code);
+    this.makeConnection();
+    await new Promise((resolve, reject) => {
+      let accepted = false, settled = false;
+      const finish = error => {
+        if (settled) return; settled = true;
+        clearTimeout(this.localWaitTimer); clearInterval(this.localJoinTimer);
+        this.abort.signal.removeEventListener('abort', aborted);
+        error ? reject(error) : resolve();
+      };
+      const aborted = () => finish(new Error('Connection closed.'));
+      this.abort.signal.addEventListener('abort', aborted, { once: true });
+      this.localBus.onmessage = async ({ data: message }) => {
+        if (this.closed || settled || !message || message.version !== 1 || message.guest !== this.localGuest) return;
+        if (message.kind === 'full') { finish(new Error('That room already has two players.')); return; }
+        if (message.kind !== 'offer' || accepted || typeof message.sdp !== 'string' || message.sdp.length >= 32768) return;
+        accepted = true; clearInterval(this.localJoinTimer);
+        try {
+          await this.pc.setRemoteDescription({ type: 'offer', sdp: message.sdp });
+          await this.pc.setLocalDescription(await this.pc.createAnswer()); await this.gather();
+          if (this.closed) return;
+          this.localSignal({ kind: 'answer', guest: this.localGuest, sdp: this.pc.localDescription.sdp });
+          this.onRoom(this.code, this.role); this.watchOpening(); finish();
+        } catch (error) { finish(error); }
+      };
+      this.localWaitTimer = setTimeout(() => finish(new Error('No room found in this browser. Open both tabs on the same device.')), 10000);
+      const join = () => this.localSignal({ kind: 'join', guest: this.localGuest });
+      this.localJoinTimer = setInterval(join, 300); join();
+    });
   }
   watchOpening() {
     this.openingTimer = setTimeout(() => {
@@ -140,6 +239,9 @@ export class PeerLink {
     if (notifyPeer) this.sendFrame({ kind: 'bye' });
     this.closed = true; clearInterval(this.heartbeat); clearTimeout(this.openingTimer);
     this.abort.abort(); this.channel?.close(); this.pc?.close();
+    clearTimeout(this.localWaitTimer); clearInterval(this.localJoinTimer);
+    this.localBus?.close(); this.localBus = null;
+    this.releaseLocalRoom?.(); this.releaseLocalRoom = null;
     // Best-effort signaling cleanup is not a match result or game message.
     // The departing tab owns cleanup. A peer reacting to its bye/close must
     // not issue a second deletion against the already removed room.
@@ -165,6 +267,6 @@ export class PeerLink {
     return { role: this.role, code: this.code, connectionState: this.pc?.connectionState || 'new',
       channelState: this.channel?.readyState || 'new', sentMessages: this.sentMessages, receivedMessages: this.receivedMessages,
       gameMessagesSent: this.gameMessagesSent, gameMessagesReceived: this.gameMessagesReceived,
-      signalingRequests: this.signalingRequests, selectedCandidatePair, iceServers: 0 };
+      signalingRequests: this.signalingRequests, signalingMode: this.localMode ? 'same-browser' : 'service', selectedCandidatePair, iceServers: 0 };
   }
 }
