@@ -8,7 +8,7 @@ from urllib.parse import urljoin, urlsplit
 
 root = Path(__file__).resolve().parents[1] / 'guest'
 base = 'https://felixsitu20.github.io/Summuition-Play/'
-expected_builds = {'game/Build/0d9ad81115ae12624f762359f4d24cf8.wasm.unityweb': '16d2cb63a29b5f0cb56b7ada4c98f1c44065648e129127908448a36485ff803a', 'game/Build/76b139e2b4ceb9f330cdeb18147eb9b6.framework.js.unityweb': 'e0b7cf8dab90382c4418fefbe3896f4a0a784139b2b076c258dbd3851e3d9afa', 'game/Build/8031f098453b3d8c0b09b4651393a967.loader.js': '8d59a4ef91eb83f903743e0146abe5877aee107461d880d552bb004754cc915f', 'game/Build/a8af3598b7ebb005456299f3297ff594.data.unityweb': '420a0daaaa4299ab09270c3ab2ce939f8755dda0f36887da1c782efafa80cac6'}
+expected_builds = {'game/Build/24742d8454629bc3ae438ff5d402449f.data.unityweb': 'e12df88f480b157fd06581b5878575a125434baf33f3351448f68b35f804261c', 'game/Build/330abb07bf7d1ed14ead1d6e9c1a144f.loader.js': '175b6a323a3fd360b1debc7ae6244b417f678786cf989bc752c9e890247374e6', 'game/Build/b034a33a55d600964f959ff72a72632c.framework.js.unityweb': '08463d1af902e176fced8de067e97798ca4a7b5db03b21a9d26edc9dd3a6bc82', 'game/Build/c2c68c304505577a7fde77d23e28e7a3.wasm.unityweb': '6014abcdc772ce5d673941d64c848b12bff18b1360316f75b07adfaa61de19aa'}
 expected_peers = {'game/summuition-peer/engine.mjs': '8eee600ac1ad074e46b77a69266509145a0e88a9aad5ca0d504e060bb733c0d4', 'game/summuition-peer/math.mjs': '171a5a7a3dad3b258c99a3cd7b63844dbd4cfa491cbec2da21696e0b6947eacf', 'game/summuition-peer/puzzles.json': 'a84987d228c9664a2d6d3ffb36d971bb3a69d57f5932f9f6c02ba98276aa1c1a', 'game/summuition-peer/transport.mjs': 'ab34bda09f11ffde658cbc09e552b589ec7fb5ab1b6ba5395734b71c2dab5b91', 'game/summuition-peer/unity-peer-bridge.mjs': '3499bc53d126a4cf0b8499a220d9e2533e37d1c1c929aff65e31b70998a82ca6'}
 expected_files = set(expected_builds) | set(expected_peers) | {'index.html', 'game/index.html', 'robots.txt', '.nojekyll', 'publication-manifest.json', 'session-control.js', 'session-ended.html'}
 expected_dirs = {'game', 'game/Build', 'game/summuition-peer'}
@@ -27,7 +27,7 @@ assert manifest['publicUrl'] == base
 assert manifest['gameUrl'] == base + 'game/'
 assert manifest['hostDisplayValidation']['compiledGameUnchanged'] is False
 assert manifest['hostDisplayValidation']['rebuiltPlayerAudited'] is True
-assert manifest['contentAuditSha256'] == '32e11f307502ed69e768a94430dda1ef15326df2d4ccac29ed021a17cc0f1f82'
+assert manifest['contentAuditSha256'] == '29c6d29005ea1694ddb644bc197e1950ef4a4c79e7f5985bd52651c4dbeea0c2'
 entries = manifest['files']
 assert len(entries) == len(expected_files) - 1
 assert {e['path'] for e in entries} == expected_files - {'publication-manifest.json'}
@@ -100,6 +100,6 @@ for file in expected_builds:
         assert unpacked
         if '.wasm.' in file:
             assert unpacked.startswith(b'\x00asm')
-loader = (root / 'game/Build/8031f098453b3d8c0b09b4651393a967.loader.js').read_text()
+loader = (root / 'game/Build/330abb07bf7d1ed14ead1d6e9c1a144f.loader.js').read_text()
 assert 'gzip' in loader
 print('PASS: exact build-only payload, all file sizes and hashes, audited rebuilt player assets, relative project paths, no external hosting redirect or UI, mobile wrapper, and gzip/WebAssembly integrity.')
