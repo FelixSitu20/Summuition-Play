@@ -60,7 +60,7 @@ export function sanitizePeerState(value) {
     Array.isArray(value.hp) && value.hp.length === 2 && value.hp.every(hp => integer(hp, 0, 5)) &&
     Array.isArray(value.ready) && value.ready.length === 2 && value.ready.every(ready => typeof ready === 'boolean') &&
     Array.isArray(value.loaded) && value.loaded.length === 2 && value.loaded.every(loaded => typeof loaded === 'boolean') &&
-    finite(value.revealSeconds, 0, 0.5) && finite(value.remainingSeconds, 0, 60) && finite(value.resultSeconds, 0, 1.5) && value.timerSeconds === 60 &&
+    finite(value.revealSeconds, 0, 0.8) && finite(value.remainingSeconds, 0, 60) && finite(value.resultSeconds, 0, 2) && value.timerSeconds === 60 &&
     integer(value.winnerIndex, -2, 1) && Array.isArray(value.lastAttempts) && value.lastAttempts.length === 2 &&
     (value.reason === null || (typeof value.reason === 'string' && value.reason.length <= 180)));
   requireValue(value.puzzle !== null || value.phase === 'waiting' || value.phase === 'ready' || value.phase === 'abandoned');

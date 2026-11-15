@@ -151,7 +151,6 @@ const statusPanel=document.getElementById('status');
 const message=document.getElementById('message');
 const fullscreenButton=document.getElementById('fullscreen');
 const displayHint=document.getElementById('display-hint');
-window.addEventListener('summuition-peer-failure',event=>{if(typeof event.detail==='string' && event.detail.length<=180)displayHint.textContent=event.detail;});
 let unityInstance=null;
 let renderPixelRatio=1;
 let fullscreenPending=false;
@@ -209,12 +208,12 @@ fitGame();
 const fail=()=>{statusPanel.style.display='grid';message.textContent='The game could not load. Please reload or ask your teacher to check browser access.';document.getElementById('progress').hidden=true;};
 function startGame(){
 const script=document.createElement('script');
-script.src='Build/925156a4f8e2627cb77e83d2a72fd984.loader.js';
+script.src='Build/d2940d0cea0be61ad79c3b0440f5d631.loader.js';
 script.onerror=fail;
 script.onload=()=>createUnityInstance(canvas,{
-  dataUrl:'Build/61485f10c55dfaba75a130e05448af0c.data.unityweb',
-  frameworkUrl:'Build/95bdb82e079cce2b6bb8f4bd1d8aa4c6.framework.js.unityweb',
-  codeUrl:'Build/5c051b0804ed1d5b331745489a72b99b.wasm.unityweb',
+  dataUrl:'Build/0341c1a320b66dfd2d04edac610e0b42.data.unityweb',
+  frameworkUrl:'Build/e55a52a8b9c548ea40e67587bbdc9b96.framework.js.unityweb',
+  codeUrl:'Build/750879fda58e04d0c6d356babfbe3c66.wasm.unityweb',
   companyName:'Summuition',productName:'Summuition',productVersion:'1.0',
   devicePixelRatio:renderPixelRatio,matchWebGLToCanvasSize:true,
   cacheControl:()=> 'no-store'

@@ -44,7 +44,7 @@ export class HostMatch {
       this.#state.phase = 'finished';
       this.#state.winnerIndex = this.#state.hp.every(hp => hp === 0) ? -1 : this.#state.hp[0] === 0 ? 1 : 0;
     } else {
-      this.#state.phase = 'result'; this.#resultUntil = now + 1500;
+      this.#state.phase = 'result'; this.#resultUntil = now + 2000;
     }
   }
   #advance(now) {
@@ -81,7 +81,7 @@ export class HostMatch {
     if (round !== this.#state.round || this.#state.phase !== 'loading') return { ok: false, code: 'state_changed' };
     if (this.#state.loaded[seat]) return { ok: true, code: 'already_loaded' };
     this.#state.loaded[seat] = true;
-    if (this.#state.loaded.every(Boolean)) { this.#state.phase = 'revealing'; this.#revealUntil = now + 500; }
+    if (this.#state.loaded.every(Boolean)) { this.#state.phase = 'revealing'; this.#revealUntil = now + 800; }
     this.#notify(); return { ok: true, code: 'loaded' };
   }
   answer(seat, request) {
