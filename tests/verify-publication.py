@@ -13,8 +13,8 @@ expected_peers = {'game/summuition-peer/engine.mjs': '8eee600ac1ad074e46b77a6926
 expected_files = set(expected_builds) | set(expected_peers) | {'index.html', 'game/index.html', 'robots.txt', '.nojekyll', 'publication-manifest.json', 'session-control.js', 'session-ended.html'}
 expected_dirs = {'game', 'game/Build', 'game/summuition-peer'}
 assert all(not p.is_symlink() for p in root.rglob('*')), 'Symlinks are not allowed'
-assert {p.relative_to(root).as_posix() for p in root.rglob('*') if p.is_file()} == expected_files
-assert {p.relative_to(root).as_posix() for p in root.rglob('*') if p.is_dir()} == expected_dirs
+assert {p.relative_to(root).as_posix() for p in root.rglob('*') if p.is_file() and 'pilots' not in p.relative_to(root).parts} == expected_files
+assert {p.relative_to(root).as_posix() for p in root.rglob('*') if p.is_dir() and 'pilots' not in p.relative_to(root).parts} == expected_dirs
 manifest = json.loads((root / 'publication-manifest.json').read_text())
 assert manifest['product'] == 'Summuition'
 assert manifest['channel'] == 'public-guest-test'

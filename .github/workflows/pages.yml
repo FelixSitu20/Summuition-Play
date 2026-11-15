@@ -20,7 +20,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Verify public guest payload and relative paths
-        run: python3 tests/verify-publication.py
+        run: |
+          python3 tests/verify-publication.py
+          python3 tests/verify-owner-pilot.py
       - name: Verify mobile display and unchanged compiled game
         run: node tests/display.test.cjs
       - name: Verify session gate and isolated owner control

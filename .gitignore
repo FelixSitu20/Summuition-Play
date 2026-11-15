@@ -51,3 +51,20 @@
 !guest/session-ended.html
 !tests/session-control.test.cjs
 !tests/session-browser.test.cjs
+
+# Explicitly authorized unlisted owner connectivity pilot only.
+!tests/verify-owner-pilot.py
+!guest/pilots/
+!guest/pilots/connection-20261115-b7e2/
+!guest/pilots/connection-20261115-b7e2/index.html
+!guest/pilots/connection-20261115-b7e2/robots.txt
+!guest/pilots/connection-20261115-b7e2/.nojekyll
+!guest/pilots/connection-20261115-b7e2/publication-manifest.json
+!guest/pilots/connection-20261115-b7e2/game/
+!guest/pilots/connection-20261115-b7e2/game/index.html
+!guest/pilots/connection-20261115-b7e2/game/Build/
+!guest/pilots/connection-20261115-b7e2/game/Build/*.unityweb
+!guest/pilots/connection-20261115-b7e2/game/Build/*.loader.js
+!guest/pilots/connection-20261115-b7e2/game/summuition-peer/
+!guest/pilots/connection-20261115-b7e2/game/summuition-peer/*.mjs
+!guest/pilots/connection-20261115-b7e2/game/summuition-peer/puzzles.json
