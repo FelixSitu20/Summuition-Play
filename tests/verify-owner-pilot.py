@@ -7,7 +7,7 @@ assert {p.name for p in root.iterdir()}=={name}, 'Unexpected pilot paths'
 site=root/name
 assert not any(p.is_symlink() for p in root.rglob('*'))
 manifest_path=site/'publication-manifest.json'
-assert hashlib.sha256(manifest_path.read_bytes()).hexdigest()=='30d3b4ce04bb724997186388d74adaf98428563578ca6bc21fef9cf4d72aa14a', 'Pilot manifest differs from reviewed package'
+assert hashlib.sha256(manifest_path.read_bytes()).hexdigest()=='d6cdfae793bd7765482f7653fd17eb2f5d89fbb266f3f0f1464f01c17c9732a2', 'Pilot manifest differs from reviewed package'
 m=json.loads(manifest_path.read_text())
 assert m['channel']=='owner-connectivity-pilot' and m['access']=='public-unlisted-not-private'
 assert m['schoolApproval'] is False and m['releaseReady'] is False and m['phonePcVerified'] is False

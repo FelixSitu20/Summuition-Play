@@ -7,13 +7,14 @@ export class HostMatch {
   #loadUntil = 0; #revealUntil = 0;
   #receipts = [new Map(), new Map()]; #roundSeconds; #state;
 
-  constructor({ now = () => performance.now(), pickPuzzle, onChange = () => {}, roundSeconds = 60 } = {}) {
+  constructor({ now = () => performance.now(), pickPuzzle, onChange = () => {}, roundSeconds = 60, maxHp = 5 } = {}) {
     if (typeof now !== 'function' || typeof pickPuzzle !== 'function' || typeof onChange !== 'function')
       throw new TypeError('A clock, puzzle picker and state callback are required.');
     if (!Number.isInteger(roundSeconds) || roundSeconds < 1 || roundSeconds > 60)
       throw new RangeError('Round duration must be between 1 and 60 seconds.');
+    if (![3, 5, 7, 10].includes(maxHp)) throw new RangeError('Health must be 3, 5, 7 or 10.');
     this.#now = now; this.#pickPuzzle = pickPuzzle; this.#onChange = onChange; this.#roundSeconds = roundSeconds;
-    this.#state = { phase: 'waiting', revision: 0, round: 0, hp: [5, 5], ready: [false, false], loaded: [false, false],
+    this.#state = { phase: 'waiting', revision: 0, round: 0, maxHp, hp: [maxHp, maxHp], ready: [false, false], loaded: [false, false],
       remainingSeconds: 0, puzzle: null, lastResult: null, lastAttempts: [null, null], winnerIndex: -2,
       reason: null, timerSeconds: roundSeconds };
     this.#time();

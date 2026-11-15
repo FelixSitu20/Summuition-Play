@@ -7,34 +7,34 @@
   "phonePcVerified": false,
   "releaseReady": false,
   "contentAuditPassed": true,
-  "contentAuditSha256": "2dc7439cb877f6bac4e37a97f6c9aee99873ae478de588372fabd1254673bf2e",
+  "contentAuditSha256": "e9a0254e1ed08fa85bf6724c00531a5ee6479bc506f0234b9419dd70f9396ce2",
   "desktopCanvas": true,
   "liveBridgeRoundTrip": true,
-  "builtUtc": "2026-11-15T05:16:30.0220788Z",
+  "builtUtc": "2026-11-15T05:57:21.2328380Z",
   "files": [
     {
-      "path": "game/Build/0341c1a320b66dfd2d04edac610e0b42.data.unityweb",
-      "sha256": "61ba91146c57e33df3930a4d481ebd95102a4ac2812c340d4945ec07f981f803"
+      "path": "game/Build/04ca5604ec0ab4065437253dcf7e0577.data.unityweb",
+      "sha256": "f1ef71df87b07e2b83961940dd3551686b8188a5cf5038e48534e16d38f2e3fb"
     },
     {
-      "path": "game/Build/750879fda58e04d0c6d356babfbe3c66.wasm.unityweb",
-      "sha256": "87181eca030621d120ad5d6391a256a995eec8755cfd20bf9adc9f6ae28fe8c8"
+      "path": "game/Build/7ecbd1e5065d7412096d79e143c44453.framework.js.unityweb",
+      "sha256": "fd991508ec7ea132121ff3eb34e13f544e66a2ab745c0c951042895b236695bb"
     },
     {
-      "path": "game/Build/d2940d0cea0be61ad79c3b0440f5d631.loader.js",
-      "sha256": "3b5c351d87e5eabdbcad9b6d29fc1ce982a8fade2054e243d1e03e335e78226f"
+      "path": "game/Build/bc58a53fc58b45a04da686c2ac3fdb07.loader.js",
+      "sha256": "6173cfa8c549fad778ab44676ad136ad2223d8295b76c5d95f2ff79569b10192"
     },
     {
-      "path": "game/Build/e55a52a8b9c548ea40e67587bbdc9b96.framework.js.unityweb",
-      "sha256": "5292e9644d13edbedc1bc96b40a901712b7f25b964730ff51e5e1e27f6ea9a10"
+      "path": "game/Build/ca2ca4e948d63941ab80167b99191800.wasm.unityweb",
+      "sha256": "5fd79b3e1435cc37fba7d279b916043404fc8bdff1d1c9e2e6953fa91f1a0622"
     },
     {
       "path": "game/index.html",
-      "sha256": "41a55c156c74a1f70eb29e5b2c179f6688c720eda6523db73c71851d3c9c8414"
+      "sha256": "4ef276da1e8a85a0e70db70014acde0eade1bdbf74c0369fe64e3cf83a9e094e"
     },
     {
       "path": "game/summuition-peer/engine.mjs",
-      "sha256": "392c24c4e2bf7e223301fe2dcc9b7fc8eb2e5205266fc49c341e351ccb099879"
+      "sha256": "783d40c70c2a8802a34024a379b10d66d9ab99ee2b8e34d8cc7ae073ed376cd7"
     },
     {
       "path": "game/summuition-peer/math.mjs",
@@ -50,10 +50,10 @@
     },
     {
       "path": "game/summuition-peer/unity-peer-bridge.mjs",
-      "sha256": "19c119eb91a835757e47c65be36517480923ca60148a8540a84dede768b87df1"
+      "sha256": "4313f58b7c0d2c8205a48a7f9b9f790e6c25c09c5d0a38db91706b926a137616"
     }
   ],
-  "auditedPlayerIndexSha256": "c2deaadff307a31c01ff0c61ef2e40a3d3ce9f0a552a5f2638121edb51938bbc",
+  "auditedPlayerIndexSha256": "927514bb24fad1b9f65809c0e27fcce30b2b313070585c9ebd2a23bc74c54a09",
   "mobileHostWrapperAdapted": true,
   "hostFiles": [
     {
@@ -69,13 +69,11 @@
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     }
   ],
-  "animationReview": {
-    "compiledTwoBrowserRelay": true,
-    "packagedMobileWrapper": true,
-    "queueScoringImmediate": true,
-    "round2NoBlackout": true,
-    "disconnectOverlayAndLeave": true,
-    "priorRelayPhonePcOwnerConfirmed": true,
-    "newAnimationPhonePcVerified": false
+  "feedbackReview": {
+    "compiledThreeHpFullMatch": true,
+    "failedResultAndZeroStart": true,
+    "pvpHistory": true,
+    "soloTwoCardNextSpace": true,
+    "newPhonePcVerified": false
   }
 }
