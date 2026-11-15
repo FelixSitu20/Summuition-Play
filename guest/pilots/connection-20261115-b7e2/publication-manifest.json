@@ -30,7 +30,7 @@
     },
     {
       "path": "game/index.html",
-      "sha256": "ccec82da9ca821cdb1bde6baa0ccb53ab7701e7cafcc44e91f9f61a076b233e3"
+      "sha256": "3dbc59c1c09aac1f53499a311f57da511f4d50c9598f34a951bb4f4a8bc2b3e0"
     },
     {
       "path": "game/summuition-peer/engine.mjs",
@@ -50,7 +50,7 @@
     },
     {
       "path": "game/summuition-peer/unity-peer-bridge.mjs",
-      "sha256": "e8cc8285a218ebc694b644f28b0a41480763501895b294fd9a2c37cf7244a6d8"
+      "sha256": "d749b02e5245a0738e3175933ab21a95a1ed5a5557d458bfce02b204baa82d0c"
     }
   ],
   "auditedPlayerIndexSha256": "69da9e5a04806b7c13ce96772cdae3a3f2726a6b6dccce0280231af30921529b",
@@ -82,6 +82,7 @@
         "before": "51a0ffbc58f9c9cb359d1f08559a0f4092c0d3700d0e10ae9ced0dbf3987cea5",
         "after": "e8cc8285a218ebc694b644f28b0a41480763501895b294fd9a2c37cf7244a6d8"
       }
-    ]
+    ],
+    "webFailureCaption": true
   }
 }

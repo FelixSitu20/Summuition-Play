@@ -154,6 +154,8 @@ export function createUnityPeerBridge({ generation, onEvent }, dependencies = {}
   function closed(session, failure) {
     const message = safeConnectionFailure(failure);
     if (!current(session) || session.closed) return;
+    if (typeof window !== 'undefined' && typeof CustomEvent !== 'undefined')
+      window.dispatchEvent(new CustomEvent('summuition-peer-failure', { detail: message }));
     session.closed = true; stopResources(session);
     if (session.engine) { session.engine.disconnect(); apply(session, session.engine.snapshot(), true); }
     else if (session.state) {

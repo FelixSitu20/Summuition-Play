@@ -151,6 +151,7 @@ const statusPanel=document.getElementById('status');
 const message=document.getElementById('message');
 const fullscreenButton=document.getElementById('fullscreen');
 const displayHint=document.getElementById('display-hint');
+window.addEventListener('summuition-peer-failure',event=>{if(typeof event.detail==='string' && event.detail.length<=180)displayHint.textContent=event.detail;});
 let unityInstance=null;
 let renderPixelRatio=1;
 let fullscreenPending=false;
