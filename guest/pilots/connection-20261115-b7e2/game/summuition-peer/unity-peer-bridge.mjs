@@ -6,6 +6,7 @@ import { PeerLink } from './transport.mjs';
 export function connectionOptionsForOrigin(origin) {
   return origin === 'https://felixsitu20.github.io'
     ? { signalingBaseUrl: 'https://summuition-rendezvous.summuition-rendezvous.workers.dev',
+        useRelay: true,
         iceServers: [{ urls: 'stun:stun.cloudflare.com:3478' }] }
     : { signalingBaseUrl: '', iceServers: [] };
 }
@@ -100,6 +101,9 @@ export function safeConnectionFailure(message) {
     'Direct connection failed. Relay may be needed. No win awarded.',
     'Direct connection timed out. Relay may be needed. No win awarded.',
     'Network interrupted. No win awarded.',
+    'Relay unavailable. No win awarded.',
+    'Relay waiting timed out. Create a new room.',
+    'Relay connection ended. No win awarded.',
     'Local connection discovery timed out.',
     'No peer connected. Create a new room to try again.',
     'Room not found. Ask the host for a new code.',

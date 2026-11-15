@@ -7,7 +7,7 @@ assert {p.name for p in root.iterdir()}=={name}, 'Unexpected pilot paths'
 site=root/name
 assert not any(p.is_symlink() for p in root.rglob('*'))
 manifest_path=site/'publication-manifest.json'
-assert hashlib.sha256(manifest_path.read_bytes()).hexdigest()=='3802d469e3198613a673c65c02be2617ffe6602be54e05f13d7dca6077180d5d', 'Pilot manifest differs from reviewed package'
+assert hashlib.sha256(manifest_path.read_bytes()).hexdigest()=='608c7f94497931234dfcb7b25b46ce7ffaf5983ed4cbc532494b02c27283d9eb', 'Pilot manifest differs from reviewed package'
 m=json.loads(manifest_path.read_text())
 assert m['channel']=='owner-connectivity-pilot' and m['access']=='public-unlisted-not-private'
 assert m['schoolApproval'] is False and m['releaseReady'] is False and m['phonePcVerified'] is False
@@ -25,6 +25,7 @@ for e in entries:
 bridge=(site/'game/summuition-peer/unity-peer-bridge.mjs').read_text()
 assert 'https://summuition-rendezvous.summuition-rendezvous.workers.dev' in bridge
 assert 'stun:stun.cloudflare.com:3478' in bridge
+assert 'useRelay: true' in bridge
 html=(site/'game/index.html').read_text()
 assert 'sessionGate' not in html and 'SummSessionControl' not in html
 assert 'Turn your phone sideways' in html and 'devicePixelRatio:renderPixelRatio' in html

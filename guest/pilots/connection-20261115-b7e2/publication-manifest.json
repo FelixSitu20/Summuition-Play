@@ -46,11 +46,11 @@
     },
     {
       "path": "game/summuition-peer/transport.mjs",
-      "sha256": "4446cedc6204f7138902b542bf4876e337a375d816e3cefe33883ccf8e9107c0"
+      "sha256": "11f40c83f55a81f30718161db1d1bd05344c767709b46bd1ce2b9345d4ce7972"
     },
     {
       "path": "game/summuition-peer/unity-peer-bridge.mjs",
-      "sha256": "d749b02e5245a0738e3175933ab21a95a1ed5a5557d458bfce02b204baa82d0c"
+      "sha256": "fd4c38a92056641369c5cc9187515c33aa2b815a1b815cad53f9924a02f10c1b"
     }
   ],
   "auditedPlayerIndexSha256": "69da9e5a04806b7c13ce96772cdae3a3f2726a6b6dccce0280231af30921529b",
@@ -58,7 +58,7 @@
   "hostFiles": [
     {
       "path": "index.html",
-      "sha256": "c8c0cc6b4516b4db1d5db9fd83630936186c23a17a4b0f0e2ab407e794ec480a"
+      "sha256": "d0be7c496fbc37be1b03f96e541429dc1290faba1801284e58318a57087081f1"
     },
     {
       "path": "robots.txt",
@@ -84,5 +84,13 @@
       }
     ],
     "webFailureCaption": true
+  },
+  "reviewedRelay": {
+    "workerVersion": "e11379dd-a38a-43b1-8641-f03434d97f88",
+    "transport": "host-authoritative WebSocket relay",
+    "packetStorage": false,
+    "paidPlan": false,
+    "liveContractAndBridgeTests": true,
+    "phonePcVerified": false
   }
 }

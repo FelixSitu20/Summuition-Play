@@ -1,6 +1,6 @@
 // The helper exchanges SDP only. Every game message uses this RTCDataChannel.
 export class PeerLink {
-  constructor({ onRoom = () => {}, onOpen = () => {}, onMessage = () => {}, onClose = () => {}, signalingBaseUrl = '', iceServers = [] } = {}) {
+  constructor({ onRoom = () => {}, onOpen = () => {}, onMessage = () => {}, onClose = () => {}, signalingBaseUrl = '', iceServers = [], useRelay = false } = {}) {
     Object.assign(this, { onRoom, onOpen, onMessage, onClose });
     // Deployment-owned configuration only. No service or external ICE is enabled by default.
     this.signalingBaseUrl = '';
@@ -14,6 +14,7 @@ export class PeerLink {
     }
     if (!Array.isArray(iceServers)) throw new Error('Invalid ICE configuration.');
     this.iceServers = structuredClone(iceServers);
+    this.useRelay = useRelay === true && !!this.signalingBaseUrl;
     this.role = null; this.code = null; this.token = null;
     this.pc = null; this.channel = null; this.closed = false;
     this.sentMessages = this.receivedMessages = this.gameMessagesSent = this.gameMessagesReceived = this.signalingRequests = 0;
@@ -37,6 +38,26 @@ export class PeerLink {
       error.status = response.status; throw error;
     }
     return response.json();
+  }
+  openRelay() {
+    const url=new URL(this.signalUrl('/signal/relay'));url.protocol=url.protocol==='https:'?'wss:':'ws:';url.searchParams.set('code',this.code);
+    const ws=new WebSocket(url.href,['summuition-relay-v1','seat-'+this.token]);
+    const channel=new EventTarget();channel.readyState='connecting';Object.defineProperty(channel,'bufferedAmount',{get:()=>ws.bufferedAmount});
+    channel.send=value=>ws.send(value);
+    channel.close=()=>{channel.readyState='closed';ws.close();};
+    this.relaySocket=ws;this.attachChannel(channel);
+    this.openingTimer=setTimeout(()=>{if(channel.readyState!=='open')this.close('Relay waiting timed out. Create a new room.',false);},120000);
+    ws.addEventListener('message',event=>{
+      if(this.closed)return;
+      if(channel.readyState==='connecting'){
+        let control;try{control=JSON.parse(event.data);}catch{}
+        if(control?.version!==1||control.kind!=='relay-ready'){this.close('Relay unavailable. No win awarded.',false);return;}
+        clearTimeout(this.openingTimer);channel.readyState='open';channel.dispatchEvent(new Event('open'));return;
+      }
+      channel.dispatchEvent(new MessageEvent('message',{data:event.data}));
+    });
+    ws.addEventListener('error',()=>this.close('Relay unavailable. No win awarded.',false));
+    ws.addEventListener('close',()=>{channel.readyState='closed';this.close('Relay connection ended. No win awarded.',false);});
   }
   makeConnection() {
     // Only explicitly supplied, deployment-approved ICE servers are used.
@@ -138,6 +159,7 @@ export class PeerLink {
       throw error;
     }
     this.role = 'host'; this.code = room.code; this.token = room.token; this.onRoom(this.code, this.role);
+    if(this.useRelay)return this.openRelay();
     this.makeConnection(); this.attachChannel(this.pc.createDataChannel('summuition-peer-v1', { ordered: true }));
     await this.pc.setLocalDescription(await this.pc.createOffer()); await this.gather();
     await this.request('/signal/offer', { code: this.code, sdp: this.pc.localDescription.sdp });
@@ -153,6 +175,7 @@ export class PeerLink {
       throw error;
     }
     this.role = 'guest'; this.code = room.code; this.token = room.token; this.onRoom(this.code, this.role);
+    if(this.useRelay)return this.openRelay();
     this.makeConnection();
     const offer = await this.pollFor('offer');
     await this.pc.setRemoteDescription({ type: 'offer', sdp: offer });
@@ -289,6 +312,6 @@ export class PeerLink {
     return { role: this.role, code: this.code, connectionState: this.pc?.connectionState || 'new',
       channelState: this.channel?.readyState || 'new', sentMessages: this.sentMessages, receivedMessages: this.receivedMessages,
       gameMessagesSent: this.gameMessagesSent, gameMessagesReceived: this.gameMessagesReceived,
-      signalingRequests: this.signalingRequests, signalingMode: this.localMode ? 'same-browser' : 'service', selectedCandidatePair, iceServers: this.localMode ? 0 : this.iceServers.length };
+      signalingRequests: this.signalingRequests, signalingMode: this.localMode ? 'same-browser' : this.useRelay ? 'relay' : 'service', selectedCandidatePair, iceServers: this.localMode ? 0 : this.iceServers.length };
   }
 }
