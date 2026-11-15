@@ -46,11 +46,11 @@
     },
     {
       "path": "game/summuition-peer/transport.mjs",
-      "sha256": "6945a102e8e04fda3124b76cc40e940137a7f929c18dcb4bfde600863bc60b90"
+      "sha256": "4446cedc6204f7138902b542bf4876e337a375d816e3cefe33883ccf8e9107c0"
     },
     {
       "path": "game/summuition-peer/unity-peer-bridge.mjs",
-      "sha256": "51a0ffbc58f9c9cb359d1f08559a0f4092c0d3700d0e10ae9ced0dbf3987cea5"
+      "sha256": "e8cc8285a218ebc694b644f28b0a41480763501895b294fd9a2c37cf7244a6d8"
     }
   ],
   "auditedPlayerIndexSha256": "69da9e5a04806b7c13ce96772cdae3a3f2726a6b6dccce0280231af30921529b",
@@ -68,5 +68,20 @@
       "path": ".nojekyll",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     }
-  ]
+  ],
+  "reviewedPeerHotfix": {
+    "purpose": "Preserve safe failure stage, allow8second temporary disconnect recovery,30second connection opening. No TURN added; phone connectivity not claimed.",
+    "changes": [
+      {
+        "path": "game/summuition-peer/transport.mjs",
+        "before": "6945a102e8e04fda3124b76cc40e940137a7f929c18dcb4bfde600863bc60b90",
+        "after": "4446cedc6204f7138902b542bf4876e337a375d816e3cefe33883ccf8e9107c0"
+      },
+      {
+        "path": "game/summuition-peer/unity-peer-bridge.mjs",
+        "before": "51a0ffbc58f9c9cb359d1f08559a0f4092c0d3700d0e10ae9ced0dbf3987cea5",
+        "after": "e8cc8285a218ebc694b644f28b0a41480763501895b294fd9a2c37cf7244a6d8"
+      }
+    ]
+  }
 }

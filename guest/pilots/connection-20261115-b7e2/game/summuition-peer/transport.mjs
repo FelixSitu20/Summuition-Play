@@ -42,8 +42,17 @@ export class PeerLink {
     // Only explicitly supplied, deployment-approved ICE servers are used.
     this.pc = new RTCPeerConnection({ iceServers: this.localMode ? [] : this.iceServers });
     this.pc.addEventListener('connectionstatechange', () => {
-      if (['failed', 'disconnected', 'closed'].includes(this.pc.connectionState))
-        this.close('Connection lost. Match ended without a win.', false);
+      if (this.closed) return;
+      const state = this.pc.connectionState;
+      if (state === 'connected') { clearTimeout(this.disconnectTimer); this.disconnectTimer = null; }
+      else if (state === 'disconnected' && !this.disconnectTimer) {
+        // ICE disconnected can recover after a brief Wi-Fi/mobile transition.
+        this.disconnectTimer = setTimeout(() => {
+          if (!this.closed && this.pc.connectionState === 'disconnected')
+            this.close('Network interrupted. No win awarded.', false);
+        }, 8000);
+      } else if (state === 'failed') this.close('Direct connection failed. Relay may be needed. No win awarded.', false);
+      else if (state === 'closed') this.close('Connection lost. Match ended without a win.', false);
     });
     this.pc.addEventListener('datachannel', event => {
       if (this.role !== 'guest' || this.channel || event.channel.label !== 'summuition-peer-v1') {
@@ -241,8 +250,8 @@ export class PeerLink {
   }
   watchOpening() {
     this.openingTimer = setTimeout(() => {
-      if (this.channel?.readyState !== 'open') this.close('Peer connection timed out. Create a new room.', false);
-    }, 20000);
+      if (this.channel?.readyState !== 'open') this.close('Direct connection timed out. Relay may be needed. No win awarded.', false);
+    }, 30000);
   }
   close(reason = 'You left the match.', notifyPeer = true, cleanupSignal = notifyPeer) {
     if (this.closed || this.closing) return;
@@ -250,7 +259,7 @@ export class PeerLink {
     // Keep one owner for resource cleanup and the completion callback.
     this.closing = true;
     if (notifyPeer) this.sendFrame({ kind: 'bye' });
-    this.closed = true; clearInterval(this.heartbeat); clearTimeout(this.openingTimer);
+    this.closed = true; clearInterval(this.heartbeat); clearTimeout(this.openingTimer); clearTimeout(this.disconnectTimer);
     this.abort.abort(); this.channel?.close(); this.pc?.close();
     clearTimeout(this.localWaitTimer); clearInterval(this.localJoinTimer);
     this.localBus?.close(); this.localBus = null;

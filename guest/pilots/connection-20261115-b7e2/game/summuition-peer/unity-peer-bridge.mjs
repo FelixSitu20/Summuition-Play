@@ -94,6 +94,22 @@ async function loadPublicBank(signal) {
   return JSON.parse(text);
 }
 
+// Only fixed local messages may cross into UI; never expose arbitrary provider errors/SDP.
+export function safeConnectionFailure(message) {
+  const allowed = new Set([
+    'Direct connection failed. Relay may be needed. No win awarded.',
+    'Direct connection timed out. Relay may be needed. No win awarded.',
+    'Network interrupted. No win awarded.',
+    'Local connection discovery timed out.',
+    'No peer connected. Create a new room to try again.',
+    'Room not found. Ask the host for a new code.',
+    'That room already has two players.',
+    'This connection is no longer available.',
+    'The other player left. Match ended without a win.',
+  ]);
+  return allowed.has(message) ? message : 'Connection ended. No win awarded.';
+}
+
 export function createUnityPeerBridge({ generation, onEvent }, dependencies = {}) {
   if (!integer(generation, 1, 2147483647) || typeof onEvent !== 'function') throw new TypeError('Invalid bridge owner.');
   const now = dependencies.now ?? (() => performance.now());
@@ -135,21 +151,22 @@ export function createUnityPeerBridge({ generation, onEvent }, dependencies = {}
     if (session.timer !== null) { clear(session.timer); session.timer = null; }
     session.abort.abort();
   }
-  function closed(session) {
+  function closed(session, failure) {
+    const message = safeConnectionFailure(failure);
     if (!current(session) || session.closed) return;
     session.closed = true; stopResources(session);
     if (session.engine) { session.engine.disconnect(); apply(session, session.engine.snapshot(), true); }
     else if (session.state) {
       if (session.state.phase !== 'finished') apply(session, { ...session.state, revision: session.state.revision + 1,
         phase: 'abandoned', winnerIndex: -2, ready: [false, false], remainingSeconds: 0, resultSeconds: 0,
-        reason: 'Connection ended. No win awarded.' }, true);
+        reason: message }, true);
       else apply(session, session.state, true);
     }
-    emit(session, 'closed', { message: session.state?.phase === 'finished' ? 'Final result kept.' : 'Connection ended. No win awarded.' });
+    emit(session, 'closed', { message: session.state?.phase === 'finished' ? 'Final result kept.' : message });
   }
-  function closeOwned(session) {
-    if (session.link && !session.link.closed) session.link.close();
-    closed(session);
+  function closeOwned(session, failure) {
+    if (session.link && !session.link.closed) session.link.close(failure);
+    closed(session, failure);
   }
   function incomingProfile(session, message) {
     const timestamp = now(); session.profileTimes = session.profileTimes.filter(at => timestamp - at < 10000);
@@ -230,13 +247,14 @@ export function createUnityPeerBridge({ generation, onEvent }, dependencies = {}
             }, 100);
           }
         },
-        onMessage: message => receive(session, message), onClose: () => closed(session),
+        onMessage: message => receive(session, message), onClose: reason => closed(session, reason),
       });
       if (role === 'host') await session.link.host(); else await session.link.join(code);
       return current(session) && !session.closed;
-    } catch {
+    } catch (error) {
       if (current(session) && !session.closed) {
-        emit(session, 'error', { message: 'Unable to connect. Check the room code and try again.' }); closeOwned(session);
+        const message = safeConnectionFailure(error?.message);
+        emit(session, 'error', { message }); closeOwned(session, message);
       }
       return false;
     }
