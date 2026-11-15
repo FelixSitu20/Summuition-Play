@@ -7,34 +7,34 @@
   "phonePcVerified": false,
   "releaseReady": false,
   "contentAuditPassed": true,
-  "contentAuditSha256": "cbc2903cc55731796b69cdfa692b58f60ad354f5b7932ae44794d7f88f65c169",
+  "contentAuditSha256": "af7ca483e28c1c612a77a8b55b89ace8106a447a82dbe77d272e28e011e4f4be",
   "desktopCanvas": true,
   "liveBridgeRoundTrip": true,
-  "builtUtc": "2026-11-15T06:37:21.3576184Z",
+  "builtUtc": "2026-11-15T07:24:59.0504715Z",
   "files": [
     {
-      "path": "game/Build/155f54dba50443eb96e6887c79ca0020.loader.js",
-      "sha256": "8e16d440d9e6833a93ba23e0b38739d8c26fb833b3a95930d32e85c92f3b8a75",
+      "path": "game/Build/69a5243dd4548fa2175f9a42b131a6ab.wasm.unityweb",
+      "sha256": "62ca7d0749625425596b7727d75d75066e777428705dfbdecbafe51cbed2916d",
+      "bytes": 11103999
+    },
+    {
+      "path": "game/Build/9693abae2c3810dd28e3485c96107ffa.data.unityweb",
+      "sha256": "bb8125e0dd55108ba275d9c54bb6de22974ac6916fede8f8576ce8b8aab90e2e",
+      "bytes": 5422463
+    },
+    {
+      "path": "game/Build/a83e2feb6bd63d1b35f101ce741cee62.framework.js.unityweb",
+      "sha256": "d03f458d1167a8a70e8321efb09b67dd34e4b648cb269a647030f732f3f21c32",
+      "bytes": 96552
+    },
+    {
+      "path": "game/Build/fd4c368e36f4ebbddb9bbe83a8aa069e.loader.js",
+      "sha256": "b0a94ee480e1cac8a92776625ca0e28f337df2dc12bbf9d765b1d3fcef9ef3bf",
       "bytes": 40316
     },
     {
-      "path": "game/Build/45f4f699b9f19f43bf1c1e91c0418d4d.data.unityweb",
-      "sha256": "cba0ceb80af07501cbbcff27d155f991c39cce86a3f3d9e73e17302f990f20d7",
-      "bytes": 5422491
-    },
-    {
-      "path": "game/Build/491b717e17518b40298b3cb155e3b400.wasm.unityweb",
-      "sha256": "d4b987b23772219868469526fdbbb6861c4e1aba82674b8837f642fa3ffbce8b",
-      "bytes": 11097231
-    },
-    {
-      "path": "game/Build/7ecbd1e5065d7412096d79e143c44453.framework.js.unityweb",
-      "sha256": "31a30c9202ecbdb5d947e6b1b40ab3b162a505fbfbdfe052d43587c3912db183",
-      "bytes": 96553
-    },
-    {
       "path": "game/index.html",
-      "sha256": "ea3cddebcf7a6f69e79473a18466e601e8c69abe47e6a25c53075a60c7dbd78f",
+      "sha256": "b8644cda7ee56db1fe87e8af9dbd9f56d105fe6ee8c93f681f524669101ef9bf",
       "bytes": 688800
     },
     {
@@ -63,7 +63,7 @@
       "bytes": 19557
     }
   ],
-  "auditedPlayerIndexSha256": "5e6d2dc3d687ca85c9e75fb4329b72d27090d0e6afc1d319cbe2e893fa85f742",
+  "auditedPlayerIndexSha256": "e7b6963c3ad9f540018c1ed3feaa77a371877a1c3420df52ef1b25fb37958018",
   "mobileHostWrapperAdapted": true,
   "hostFiles": [
     {
@@ -92,20 +92,22 @@
       "bytes": 0
     }
   ],
+  "publicUrl": "https://felixsitu20.github.io/Summuition-Play/",
+  "gameUrl": "https://felixsitu20.github.io/Summuition-Play/game/",
   "onlineCompetition": true,
   "studentPlayEnabled": false,
   "sessionGatePreserved": true,
   "schoolVerificationStatus": "pending-owner-network-test",
   "pausedSnapshotSha256": "617d1a20252d9fda85f967de5fc15c6d001d791e29a31ccdafa015fc90dc19aa",
   "pausedStatusUrl": "https://raw.githubusercontent.com/FelixSitu20/Summuition-Play/session-control/session.json",
-  "reviewedHostSha256": {
-    "index.html": "472151e8e50712d7fed1da13bfd5220e63543f77776336fef3f2d1e7fe5514d7",
-    "game/index.html": "ef57b872c0e263de06c8a2aabd640c85b858b3f78d71403d9953bd75c1109309",
-    "session-control.js": "dcde683415b90718593ce2a90d3d1aadb78bdc81b2d1ee7797421ad401b28d4d",
-    "session-ended.html": "172305003b80a9b8ed70037174591a7d9abe802092bdb24aafbd167904b8f2cc"
-  },
   "sessionControl": {
     "repositoryId": 1450788815,
     "accessControl": false
+  },
+  "reviewedHostSha256": {
+    "index.html": "827e28d188289536d538383fbd1928f0bde3837e4494e9ee35713aacc72f92c6",
+    "game/index.html": "ea3cddebcf7a6f69e79473a18466e601e8c69abe47e6a25c53075a60c7dbd78f",
+    "session-control.js": "dcde683415b90718593ce2a90d3d1aadb78bdc81b2d1ee7797421ad401b28d4d",
+    "session-ended.html": "172305003b80a9b8ed70037174591a7d9abe802092bdb24aafbd167904b8f2cc"
   }
 }

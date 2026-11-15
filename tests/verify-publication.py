@@ -9,7 +9,7 @@ from urllib.parse import urljoin, urlsplit
 root = Path(__file__).resolve().parents[1] / 'guest'
 base = 'https://felixsitu20.github.io/Summuition-Play/'
 # Fail closed until the publisher pins the completed, reviewed test manifest.
-EXPECTED_MANIFEST_SHA256 = 'fb9286a2bbefb70d5b2f4cace2e392338dd734fcb0a8d73111d3dd9f0c583269'
+EXPECTED_MANIFEST_SHA256 = '686112d8d5e46d829bfc87a330f202ad75a60b02e54936f17a16db918fd1116c'
 manifest_bytes = (root / 'publication-manifest.json').read_bytes()
 assert hashlib.sha256(manifest_bytes).hexdigest() == EXPECTED_MANIFEST_SHA256, 'Unreviewed test manifest'
 manifest = json.loads(manifest_bytes)
