@@ -7,30 +7,30 @@
   "phonePcVerified": false,
   "releaseReady": false,
   "contentAuditPassed": true,
-  "contentAuditSha256": "e9a0254e1ed08fa85bf6724c00531a5ee6479bc506f0234b9419dd70f9396ce2",
+  "contentAuditSha256": "cbc2903cc55731796b69cdfa692b58f60ad354f5b7932ae44794d7f88f65c169",
   "desktopCanvas": true,
   "liveBridgeRoundTrip": true,
-  "builtUtc": "2026-11-15T05:57:21.2328380Z",
+  "builtUtc": "2026-11-15T06:37:21.3576184Z",
   "files": [
     {
-      "path": "game/Build/04ca5604ec0ab4065437253dcf7e0577.data.unityweb",
-      "sha256": "f1ef71df87b07e2b83961940dd3551686b8188a5cf5038e48534e16d38f2e3fb"
+      "path": "game/Build/155f54dba50443eb96e6887c79ca0020.loader.js",
+      "sha256": "8e16d440d9e6833a93ba23e0b38739d8c26fb833b3a95930d32e85c92f3b8a75"
+    },
+    {
+      "path": "game/Build/45f4f699b9f19f43bf1c1e91c0418d4d.data.unityweb",
+      "sha256": "cba0ceb80af07501cbbcff27d155f991c39cce86a3f3d9e73e17302f990f20d7"
+    },
+    {
+      "path": "game/Build/491b717e17518b40298b3cb155e3b400.wasm.unityweb",
+      "sha256": "d4b987b23772219868469526fdbbb6861c4e1aba82674b8837f642fa3ffbce8b"
     },
     {
       "path": "game/Build/7ecbd1e5065d7412096d79e143c44453.framework.js.unityweb",
-      "sha256": "fd991508ec7ea132121ff3eb34e13f544e66a2ab745c0c951042895b236695bb"
-    },
-    {
-      "path": "game/Build/bc58a53fc58b45a04da686c2ac3fdb07.loader.js",
-      "sha256": "6173cfa8c549fad778ab44676ad136ad2223d8295b76c5d95f2ff79569b10192"
-    },
-    {
-      "path": "game/Build/ca2ca4e948d63941ab80167b99191800.wasm.unityweb",
-      "sha256": "5fd79b3e1435cc37fba7d279b916043404fc8bdff1d1c9e2e6953fa91f1a0622"
+      "sha256": "31a30c9202ecbdb5d947e6b1b40ab3b162a505fbfbdfe052d43587c3912db183"
     },
     {
       "path": "game/index.html",
-      "sha256": "4ef276da1e8a85a0e70db70014acde0eade1bdbf74c0369fe64e3cf83a9e094e"
+      "sha256": "92bd7a8d4e94b10e08d4b3f062b8a2aaaa790f4f8c5b43d394c2dd4358597018"
     },
     {
       "path": "game/summuition-peer/engine.mjs",
@@ -53,7 +53,7 @@
       "sha256": "4313f58b7c0d2c8205a48a7f9b9f790e6c25c09c5d0a38db91706b926a137616"
     }
   ],
-  "auditedPlayerIndexSha256": "927514bb24fad1b9f65809c0e27fcce30b2b313070585c9ebd2a23bc74c54a09",
+  "auditedPlayerIndexSha256": "5e6d2dc3d687ca85c9e75fb4329b72d27090d0e6afc1d319cbe2e893fa85f742",
   "mobileHostWrapperAdapted": true,
   "hostFiles": [
     {
@@ -68,12 +68,5 @@
       "path": ".nojekyll",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     }
-  ],
-  "feedbackReview": {
-    "compiledThreeHpFullMatch": true,
-    "failedResultAndZeroStart": true,
-    "pvpHistory": true,
-    "soloTwoCardNextSpace": true,
-    "newPhonePcVerified": false
-  }
+  ]
 }

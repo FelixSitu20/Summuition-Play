@@ -1,20 +1,34 @@
 // The helper exchanges SDP only. Every game message uses this RTCDataChannel.
 export class PeerLink {
-  constructor({ onRoom = () => {}, onOpen = () => {}, onMessage = () => {}, onClose = () => {} } = {}) {
+  constructor({ onRoom = () => {}, onOpen = () => {}, onMessage = () => {}, onClose = () => {}, signalingBaseUrl = '', iceServers = [], useRelay = false } = {}) {
     Object.assign(this, { onRoom, onOpen, onMessage, onClose });
+    // Deployment-owned configuration only. No service or external ICE is enabled by default.
+    this.signalingBaseUrl = '';
+    if (signalingBaseUrl) {
+      const url = new URL(signalingBaseUrl);
+      const loopback = ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname);
+      if ((url.protocol !== 'https:' && !(loopback && url.protocol === 'http:')) ||
+          url.username || url.password || url.search || url.hash)
+        throw new Error('Signaling requires HTTPS (or local loopback) without URL credentials.');
+      this.signalingBaseUrl = url.href.replace(/\/$/, '');
+    }
+    if (!Array.isArray(iceServers)) throw new Error('Invalid ICE configuration.');
+    this.iceServers = structuredClone(iceServers);
+    this.useRelay = useRelay === true && !!this.signalingBaseUrl;
     this.role = null; this.code = null; this.token = null;
     this.pc = null; this.channel = null; this.closed = false;
     this.sentMessages = this.receivedMessages = this.gameMessagesSent = this.gameMessagesReceived = this.signalingRequests = 0;
     this.abort = new AbortController(); this.lastReceived = performance.now();
   }
+  signalUrl(path) { return this.signalingBaseUrl + path; }
   async request(path, body, authenticated = true) {
     this.signalingRequests++;
     const headers = { 'Content-Type': 'application/json' };
     if (authenticated && this.token) headers.Authorization = `Bearer ${this.token}`;
-    const response = await fetch(path, {
+    const response = await fetch(this.signalUrl(path), {
       method: body === undefined ? 'GET' : 'POST', headers,
       body: body === undefined ? undefined : JSON.stringify(body),
-      cache: 'no-store', signal: this.abort.signal,
+      cache: 'no-store', credentials: 'omit', redirect: 'error', signal: this.abort.signal,
     });
     if (!response.ok) {
       const messages = { 400: 'Enter a four-digit room code.', 403: 'This connection is no longer available.',
@@ -25,12 +39,41 @@ export class PeerLink {
     }
     return response.json();
   }
+  openRelay() {
+    const url=new URL(this.signalUrl('/signal/relay'));url.protocol=url.protocol==='https:'?'wss:':'ws:';url.searchParams.set('code',this.code);
+    const ws=new WebSocket(url.href,['summuition-relay-v1','seat-'+this.token]);
+    const channel=new EventTarget();channel.readyState='connecting';Object.defineProperty(channel,'bufferedAmount',{get:()=>ws.bufferedAmount});
+    channel.send=value=>ws.send(value);
+    channel.close=()=>{channel.readyState='closed';ws.close();};
+    this.relaySocket=ws;this.attachChannel(channel);
+    this.openingTimer=setTimeout(()=>{if(channel.readyState!=='open')this.close('Relay waiting timed out. Create a new room.',false);},120000);
+    ws.addEventListener('message',event=>{
+      if(this.closed)return;
+      if(channel.readyState==='connecting'){
+        let control;try{control=JSON.parse(event.data);}catch{}
+        if(control?.version!==1||control.kind!=='relay-ready'){this.close('Relay unavailable. No win awarded.',false);return;}
+        clearTimeout(this.openingTimer);channel.readyState='open';channel.dispatchEvent(new Event('open'));return;
+      }
+      channel.dispatchEvent(new MessageEvent('message',{data:event.data}));
+    });
+    ws.addEventListener('error',()=>this.close('Relay unavailable. No win awarded.',false));
+    ws.addEventListener('close',()=>{channel.readyState='closed';this.close('Relay connection ended. No win awarded.',false);});
+  }
   makeConnection() {
-    // Local proof only: no external STUN, TURN, telemetry or account service.
-    this.pc = new RTCPeerConnection({ iceServers: [] });
+    // Only explicitly supplied, deployment-approved ICE servers are used.
+    this.pc = new RTCPeerConnection({ iceServers: this.localMode ? [] : this.iceServers });
     this.pc.addEventListener('connectionstatechange', () => {
-      if (['failed', 'disconnected', 'closed'].includes(this.pc.connectionState))
-        this.close('Connection lost. Match ended without a win.', false);
+      if (this.closed) return;
+      const state = this.pc.connectionState;
+      if (state === 'connected') { clearTimeout(this.disconnectTimer); this.disconnectTimer = null; }
+      else if (state === 'disconnected' && !this.disconnectTimer) {
+        // ICE disconnected can recover after a brief Wi-Fi/mobile transition.
+        this.disconnectTimer = setTimeout(() => {
+          if (!this.closed && this.pc.connectionState === 'disconnected')
+            this.close('Network interrupted. No win awarded.', false);
+        }, 8000);
+      } else if (state === 'failed') this.close('Direct connection failed. Relay may be needed. No win awarded.', false);
+      else if (state === 'closed') this.close('Connection lost. Match ended without a win.', false);
     });
     this.pc.addEventListener('datachannel', event => {
       if (this.role !== 'guest' || this.channel || event.channel.label !== 'summuition-peer-v1') {
@@ -112,10 +155,11 @@ export class PeerLink {
     let room;
     try { room = await this.request('/signal/create', {}, false); }
     catch (error) {
-      if ([404, 405, 501].includes(error.status) && !this.closed) return this.hostSameBrowser();
+      if (!this.signalingBaseUrl && [404, 405, 501].includes(error.status) && !this.closed) return this.hostSameBrowser();
       throw error;
     }
     this.role = 'host'; this.code = room.code; this.token = room.token; this.onRoom(this.code, this.role);
+    if(this.useRelay)return this.openRelay();
     this.makeConnection(); this.attachChannel(this.pc.createDataChannel('summuition-peer-v1', { ordered: true }));
     await this.pc.setLocalDescription(await this.pc.createOffer()); await this.gather();
     await this.request('/signal/offer', { code: this.code, sdp: this.pc.localDescription.sdp });
@@ -127,10 +171,11 @@ export class PeerLink {
     let room;
     try { room = await this.request('/signal/join', { code }, false); }
     catch (error) {
-      if ([404, 405, 501].includes(error.status) && !this.closed) return this.joinSameBrowser(code);
+      if (!this.signalingBaseUrl && [404, 405, 501].includes(error.status) && !this.closed) return this.joinSameBrowser(code);
       throw error;
     }
     this.role = 'guest'; this.code = room.code; this.token = room.token; this.onRoom(this.code, this.role);
+    if(this.useRelay)return this.openRelay();
     this.makeConnection();
     const offer = await this.pollFor('offer');
     await this.pc.setRemoteDescription({ type: 'offer', sdp: offer });
@@ -228,8 +273,8 @@ export class PeerLink {
   }
   watchOpening() {
     this.openingTimer = setTimeout(() => {
-      if (this.channel?.readyState !== 'open') this.close('Peer connection timed out. Create a new room.', false);
-    }, 20000);
+      if (this.channel?.readyState !== 'open') this.close('Direct connection timed out. Relay may be needed. No win awarded.', false);
+    }, 30000);
   }
   close(reason = 'You left the match.', notifyPeer = true, cleanupSignal = notifyPeer) {
     if (this.closed || this.closing) return;
@@ -237,7 +282,7 @@ export class PeerLink {
     // Keep one owner for resource cleanup and the completion callback.
     this.closing = true;
     if (notifyPeer) this.sendFrame({ kind: 'bye' });
-    this.closed = true; clearInterval(this.heartbeat); clearTimeout(this.openingTimer);
+    this.closed = true; clearInterval(this.heartbeat); clearTimeout(this.openingTimer); clearTimeout(this.disconnectTimer);
     this.abort.abort(); this.channel?.close(); this.pc?.close();
     clearTimeout(this.localWaitTimer); clearInterval(this.localJoinTimer);
     this.localBus?.close(); this.localBus = null;
@@ -245,9 +290,9 @@ export class PeerLink {
     // Best-effort signaling cleanup is not a match result or game message.
     // The departing tab owns cleanup. A peer reacting to its bye/close must
     // not issue a second deletion against the already removed room.
-    if (cleanupSignal && this.token && this.code) fetch('/signal/leave', {
+    if (cleanupSignal && this.token && this.code) fetch(this.signalUrl('/signal/leave'), {
       method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${this.token}` },
-      body: JSON.stringify({ code: this.code }), keepalive: true,
+      body: JSON.stringify({ code: this.code }), keepalive: true, credentials: 'omit', redirect: 'error',
     }).catch(() => {});
     this.onClose(reason);
   }
@@ -267,6 +312,6 @@ export class PeerLink {
     return { role: this.role, code: this.code, connectionState: this.pc?.connectionState || 'new',
       channelState: this.channel?.readyState || 'new', sentMessages: this.sentMessages, receivedMessages: this.receivedMessages,
       gameMessagesSent: this.gameMessagesSent, gameMessagesReceived: this.gameMessagesReceived,
-      signalingRequests: this.signalingRequests, signalingMode: this.localMode ? 'same-browser' : 'service', selectedCandidatePair, iceServers: 0 };
+      signalingRequests: this.signalingRequests, signalingMode: this.localMode ? 'same-browser' : this.useRelay ? 'relay' : 'service', selectedCandidatePair, iceServers: this.localMode ? 0 : this.iceServers.length };
   }
 }

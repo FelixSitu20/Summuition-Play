@@ -4,15 +4,17 @@ import { evaluateOrder, validOrder, validatePuzzle } from './math.mjs';
 // to its clock, puzzle selection, answer processing, Health or match results.
 export class HostMatch {
   #now; #pickPuzzle; #onChange; #lastNow = 0; #deadline = 0; #resultUntil = 0;
+  #loadUntil = 0; #revealUntil = 0;
   #receipts = [new Map(), new Map()]; #roundSeconds; #state;
 
-  constructor({ now = () => performance.now(), pickPuzzle, onChange = () => {}, roundSeconds = 60 } = {}) {
+  constructor({ now = () => performance.now(), pickPuzzle, onChange = () => {}, roundSeconds = 60, maxHp = 5 } = {}) {
     if (typeof now !== 'function' || typeof pickPuzzle !== 'function' || typeof onChange !== 'function')
       throw new TypeError('A clock, puzzle picker and state callback are required.');
     if (!Number.isInteger(roundSeconds) || roundSeconds < 1 || roundSeconds > 60)
       throw new RangeError('Round duration must be between 1 and 60 seconds.');
+    if (![3, 5, 7, 10].includes(maxHp)) throw new RangeError('Health must be 3, 5, 7 or 10.');
     this.#now = now; this.#pickPuzzle = pickPuzzle; this.#onChange = onChange; this.#roundSeconds = roundSeconds;
-    this.#state = { phase: 'waiting', revision: 0, round: 0, hp: [5, 5], ready: [false, false],
+    this.#state = { phase: 'waiting', revision: 0, round: 0, maxHp, hp: [maxHp, maxHp], ready: [false, false], loaded: [false, false],
       remainingSeconds: 0, puzzle: null, lastResult: null, lastAttempts: [null, null], winnerIndex: -2,
       reason: null, timerSeconds: roundSeconds };
     this.#time();
@@ -26,35 +28,44 @@ export class HostMatch {
   }
   #validSeat(seat) { return seat === 0 || seat === 1; }
   #notify() { this.#state.revision++; this.#onChange(this.snapshot()); }
-  #deal() {
-    const puzzle = structuredClone(validatePuzzle(this.#pickPuzzle(this.#state.round + 1)));
-    this.#state.round++; this.#state.puzzle = puzzle; this.#state.phase = 'ready';
-    this.#state.ready = [false, false]; this.#state.lastAttempts = [null, null]; this.#state.reason = null;
+  #deal(now, first = false) {
+    const puzzle = structuredClone(validatePuzzle(this.#pickPuzzle(first ? this.#state.round : this.#state.round + 1)));
+    if (!first) this.#state.round++;
+    this.#state.puzzle = puzzle; this.#state.phase = 'loading';
+    this.#state.loaded = [false, false]; this.#loadUntil = now + 30000;
+    this.#state.ready = [true, true]; this.#state.lastAttempts = [null, null]; this.#state.reason = null;
     this.#deadline = 0; this.#resultUntil = 0;
   }
   #finishRound(winnerIndex, timedOut, now) {
     const damage = timedOut ? [1, 1] : winnerIndex === 0 ? [0, 1] : [1, 0];
     this.#state.hp = this.#state.hp.map((hp, index) => Math.max(0, hp - damage[index]));
     this.#state.lastResult = { round: this.#state.round, winnerIndex, timedOut, damage };
-    this.#state.ready = [false, false]; this.#deadline = 0;
+    this.#deadline = 0;
     if (this.#state.hp.some(hp => hp === 0)) {
       this.#state.phase = 'finished';
       this.#state.winnerIndex = this.#state.hp.every(hp => hp === 0) ? -1 : this.#state.hp[0] === 0 ? 1 : 0;
     } else {
-      this.#state.phase = 'result'; this.#resultUntil = now + 1500;
+      this.#state.phase = 'result'; this.#resultUntil = now + 2000;
     }
   }
   #advance(now) {
+    if (this.#state.phase === 'loading' && now >= this.#loadUntil) {
+      this.disconnect('A player did not finish loading. Start a new room.'); return;
+    }
+    if (this.#state.phase === 'revealing' && now >= this.#revealUntil) {
+      this.#state.phase = 'playing'; this.#deadline = now + this.#roundSeconds * 1000; this.#notify();
+    }
     if (this.#state.phase === 'playing' && now >= this.#deadline) {
       this.#finishRound(-1, true, now); this.#notify();
     } else if (this.#state.phase === 'result' && now >= this.#resultUntil) {
-      this.#deal(); this.#notify();
+      this.#deal(now); this.#notify();
     }
   }
 
   connectGuest() {
     if (this.#state.phase !== 'waiting') return { ok: false, code: 'already_connected' };
-    this.#deal(); this.#notify(); return { ok: true, code: 'connected' };
+    this.#state.round = 1; this.#state.phase = 'ready';
+    this.#notify(); return { ok: true, code: 'connected' };
   }
   ready(seat, round) {
     if (!this.#validSeat(seat)) return { ok: false, code: 'invalid_seat' };
@@ -62,8 +73,17 @@ export class HostMatch {
     if (round !== this.#state.round || this.#state.phase !== 'ready') return { ok: false, code: 'state_changed' };
     if (this.#state.ready[seat]) return { ok: true, code: 'already_ready' };
     this.#state.ready[seat] = true;
-    if (this.#state.ready.every(Boolean)) { this.#state.phase = 'playing'; this.#deadline = now + this.#roundSeconds * 1000; }
+    if (this.#state.ready.every(Boolean)) this.#deal(now, true);
     this.#notify(); return { ok: true, code: 'ready' };
+  }
+  loaded(seat, round) {
+    if (!this.#validSeat(seat)) return { ok: false, code: 'invalid_seat' };
+    const now = this.#time(); this.#advance(now);
+    if (round !== this.#state.round || this.#state.phase !== 'loading') return { ok: false, code: 'state_changed' };
+    if (this.#state.loaded[seat]) return { ok: true, code: 'already_loaded' };
+    this.#state.loaded[seat] = true;
+    if (this.#state.loaded.every(Boolean)) { this.#state.phase = 'revealing'; this.#revealUntil = now + 800; }
+    this.#notify(); return { ok: true, code: 'loaded' };
   }
   answer(seat, request) {
     if (!this.#validSeat(seat)) return { ok: false, code: 'invalid_seat' };
@@ -98,7 +118,8 @@ export class HostMatch {
     const now = this.#time();
     return structuredClone({ ...this.#state,
       remainingSeconds: this.#state.phase === 'playing' ? Math.max(0, (this.#deadline - now) / 1000)
-        : this.#state.phase === 'ready' ? this.#roundSeconds : 0,
+        : ['ready', 'loading', 'revealing'].includes(this.#state.phase) ? this.#roundSeconds : 0,
+      revealSeconds: this.#state.phase === 'revealing' ? Math.max(0, (this.#revealUntil - now) / 1000) : 0,
       resultSeconds: this.#state.phase === 'result' ? Math.max(0, (this.#resultUntil - now) / 1000) : 0 });
   }
 }

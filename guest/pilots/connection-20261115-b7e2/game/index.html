@@ -208,12 +208,12 @@ fitGame();
 const fail=()=>{statusPanel.style.display='grid';message.textContent='The game could not load. Please reload or ask your teacher to check browser access.';document.getElementById('progress').hidden=true;};
 function startGame(){
 const script=document.createElement('script');
-script.src='Build/bc58a53fc58b45a04da686c2ac3fdb07.loader.js';
+script.src='Build/155f54dba50443eb96e6887c79ca0020.loader.js';
 script.onerror=fail;
 script.onload=()=>createUnityInstance(canvas,{
-  dataUrl:'Build/04ca5604ec0ab4065437253dcf7e0577.data.unityweb',
+  dataUrl:'Build/45f4f699b9f19f43bf1c1e91c0418d4d.data.unityweb',
   frameworkUrl:'Build/7ecbd1e5065d7412096d79e143c44453.framework.js.unityweb',
-  codeUrl:'Build/ca2ca4e948d63941ab80167b99191800.wasm.unityweb',
+  codeUrl:'Build/491b717e17518b40298b3cb155e3b400.wasm.unityweb',
   companyName:'Summuition',productName:'Summuition',productVersion:'1.0',
   devicePixelRatio:renderPixelRatio,matchWebGLToCanvasSize:true,
   cacheControl:()=> 'no-store'

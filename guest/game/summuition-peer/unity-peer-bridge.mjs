@@ -2,8 +2,18 @@ import { HostMatch } from './engine.mjs';
 import { LIMIT, round, validOrder, validatePuzzle } from './math.mjs';
 import { PeerLink } from './transport.mjs';
 
+// Deployment-owned public endpoint only; never place permanent credentials here.
+export function connectionOptionsForOrigin(origin) {
+  return origin === 'https://felixsitu20.github.io'
+    ? { signalingBaseUrl: 'https://summuition-rendezvous.summuition-rendezvous.workers.dev',
+        useRelay: true,
+        iceServers: [{ urls: 'stun:stun.cloudflare.com:3478' }] }
+    : { signalingBaseUrl: '', iceServers: [] };
+}
+const NETWORK_OPTIONS = connectionOptionsForOrigin(globalThis.location?.origin);
+
 // DOM-free adapter. Authority, arithmetic and transport remain in the existing modules.
-const phases = new Set(['waiting', 'ready', 'playing', 'result', 'finished', 'abandoned']);
+const phases = new Set(['waiting', 'ready', 'loading', 'revealing', 'playing', 'result', 'finished', 'abandoned']);
 // Keep the existing transport bytes intact while preventing an awaited response
 // from constructing a connection after its Unity owner has already left.
 class OwnedPeerLink extends PeerLink {
@@ -44,15 +54,19 @@ function puzzleCopy(value) {
 }
 // Project every nested value; credentials and unknown fields never reach Unity.
 export function sanitizePeerState(value) {
-  fields(value, ['phase', 'revision', 'round', 'hp', 'ready', 'remainingSeconds', 'resultSeconds', 'timerSeconds',
+  fields(value, ['phase', 'revision', 'round', 'maxHp', 'hp', 'ready', 'remainingSeconds', 'resultSeconds', 'timerSeconds', 'loaded', 'revealSeconds',
     'puzzle', 'lastResult', 'lastAttempts', 'winnerIndex', 'reason']);
+  const maxHp = value.maxHp === undefined ? 5 : value.maxHp; // Legacy fixed-five snapshots only.
+  requireValue([3, 5, 7, 10].includes(maxHp));
   requireValue(phases.has(value.phase) && integer(value.revision, 0, 2147483647) && integer(value.round, 0, 1000) &&
-    Array.isArray(value.hp) && value.hp.length === 2 && value.hp.every(hp => integer(hp, 0, 5)) &&
+    Array.isArray(value.hp) && value.hp.length === 2 && value.hp.every(hp => integer(hp, 0, maxHp)) &&
     Array.isArray(value.ready) && value.ready.length === 2 && value.ready.every(ready => typeof ready === 'boolean') &&
-    finite(value.remainingSeconds, 0, 60) && finite(value.resultSeconds, 0, 1.5) && value.timerSeconds === 60 &&
+    Array.isArray(value.loaded) && value.loaded.length === 2 && value.loaded.every(loaded => typeof loaded === 'boolean') &&
+    finite(value.revealSeconds, 0, 0.8) && finite(value.remainingSeconds, 0, 60) && finite(value.resultSeconds, 0, 2) && value.timerSeconds === 60 &&
     integer(value.winnerIndex, -2, 1) && Array.isArray(value.lastAttempts) && value.lastAttempts.length === 2 &&
     (value.reason === null || (typeof value.reason === 'string' && value.reason.length <= 180)));
-  requireValue(value.puzzle !== null || value.phase === 'waiting' || value.phase === 'abandoned');
+  requireValue(value.puzzle !== null || value.phase === 'waiting' || value.phase === 'ready' || value.phase === 'abandoned');
+  requireValue(value.phase !== 'ready' || value.puzzle === null);
   const puzzle = value.puzzle === null ? null : puzzleCopy(value.puzzle);
   const lastAttempts = value.lastAttempts.map(attempt => {
     if (attempt === null) return null;
@@ -69,8 +83,8 @@ export function sanitizePeerState(value) {
       Array.isArray(result.damage) && result.damage.length === 2 && result.damage.every(damage => integer(damage, 0, 1)));
     lastResult = { round: result.round, winnerIndex: result.winnerIndex, timedOut: result.timedOut, damage: [...result.damage] };
   }
-  return { phase: value.phase, revision: value.revision, round: value.round, hp: [...value.hp], ready: [...value.ready],
-    remainingSeconds: value.remainingSeconds, resultSeconds: value.resultSeconds, timerSeconds: 60,
+  return { phase: value.phase, revision: value.revision, round: value.round, maxHp, hp: [...value.hp], ready: [...value.ready],
+    loaded: [...value.loaded], revealSeconds: value.revealSeconds, remainingSeconds: value.remainingSeconds, resultSeconds: value.resultSeconds, timerSeconds: 60,
     puzzle, lastResult, lastAttempts, winnerIndex: value.winnerIndex,
     reason: value.phase === 'abandoned' ? 'Connection ended. No win awarded.' : null };
 }
@@ -83,11 +97,30 @@ async function loadPublicBank(signal) {
   return JSON.parse(text);
 }
 
+// Only fixed local messages may cross into UI; never expose arbitrary provider errors/SDP.
+export function safeConnectionFailure(message) {
+  const allowed = new Set([
+    'Direct connection failed. Relay may be needed. No win awarded.',
+    'Direct connection timed out. Relay may be needed. No win awarded.',
+    'Network interrupted. No win awarded.',
+    'Relay unavailable. No win awarded.',
+    'Relay waiting timed out. Create a new room.',
+    'Relay connection ended. No win awarded.',
+    'Local connection discovery timed out.',
+    'No peer connected. Create a new room to try again.',
+    'Room not found. Ask the host for a new code.',
+    'That room already has two players.',
+    'This connection is no longer available.',
+    'The other player left. Match ended without a win.',
+  ]);
+  return allowed.has(message) ? message : 'Connection ended. No win awarded.';
+}
+
 export function createUnityPeerBridge({ generation, onEvent }, dependencies = {}) {
   if (!integer(generation, 1, 2147483647) || typeof onEvent !== 'function') throw new TypeError('Invalid bridge owner.');
   const now = dependencies.now ?? (() => performance.now());
   const loadBank = dependencies.loadBank ?? loadPublicBank;
-  const makeLink = dependencies.makeLink ?? (callbacks => new OwnedPeerLink(callbacks));
+  const makeLink = dependencies.makeLink ?? (callbacks => new OwnedPeerLink({ ...NETWORK_OPTIONS, ...callbacks }));
   const interval = dependencies.setInterval ?? ((callback, delay) => setInterval(callback, delay));
   const clear = dependencies.clearInterval ?? (handle => clearInterval(handle));
   const random = dependencies.random ?? (() => crypto.getRandomValues(new Uint32Array(1))[0]);
@@ -105,9 +138,10 @@ export function createUnityPeerBridge({ generation, onEvent }, dependencies = {}
     if (!current(session)) return;
     const next = sanitizePeerState(raw);
     if (session.state && next.revision < session.state.revision) return;
+    if (session.state && next.maxHp !== session.state.maxHp) throw new Error('Health setting changed.');
     if (session.state && next.round < session.state.round) throw new Error('Invalid peer round.');
-    if (['playing', 'result', 'finished'].includes(next.phase)) session.frozen = true;
-    if (!session.state || next.round !== session.state.round) session.readySubmitted = false;
+    if (['loading', 'revealing', 'playing', 'result', 'finished'].includes(next.phase)) session.frozen = true;
+    if (!session.state || next.round !== session.state.round) { session.readySubmitted = false; session.loadedSubmitted = false; }
     session.state = next;
     const timestamp = now();
     if (force || next.revision !== session.emittedRevision || timestamp - session.lastEmit >= 200) {
@@ -124,21 +158,24 @@ export function createUnityPeerBridge({ generation, onEvent }, dependencies = {}
     if (session.timer !== null) { clear(session.timer); session.timer = null; }
     session.abort.abort();
   }
-  function closed(session) {
+  function closed(session, failure) {
+    const message = safeConnectionFailure(failure);
     if (!current(session) || session.closed) return;
+    if (typeof window !== 'undefined' && typeof CustomEvent !== 'undefined')
+      window.dispatchEvent(new CustomEvent('summuition-peer-failure', { detail: message }));
     session.closed = true; stopResources(session);
     if (session.engine) { session.engine.disconnect(); apply(session, session.engine.snapshot(), true); }
     else if (session.state) {
       if (session.state.phase !== 'finished') apply(session, { ...session.state, revision: session.state.revision + 1,
         phase: 'abandoned', winnerIndex: -2, ready: [false, false], remainingSeconds: 0, resultSeconds: 0,
-        reason: 'Connection ended. No win awarded.' }, true);
+        reason: message }, true);
       else apply(session, session.state, true);
     }
-    emit(session, 'closed', { message: session.state?.phase === 'finished' ? 'Final result kept.' : 'Connection ended. No win awarded.' });
+    emit(session, 'closed', { message: session.state?.phase === 'finished' ? 'Final result kept.' : message });
   }
-  function closeOwned(session) {
-    if (session.link && !session.link.closed) session.link.close();
-    closed(session);
+  function closeOwned(session, failure) {
+    if (session.link && !session.link.closed) session.link.close(failure);
+    closed(session, failure);
   }
   function incomingProfile(session, message) {
     const timestamp = now(); session.profileTimes = session.profileTimes.filter(at => timestamp - at < 10000);
@@ -164,6 +201,7 @@ export function createUnityPeerBridge({ generation, onEvent }, dependencies = {}
     requireValue(session.commandTimes.length < 30); session.commandTimes.push(timestamp);
     requireValue(integer(message.round, 1, 1000));
     if (message.type === 'ready') { fields(message, ['type', 'round']); session.engine.ready(1, message.round); }
+    else if (message.type === 'loaded') { fields(message, ['type', 'round']); session.engine.loaded(1, message.round); }
     else if (message.type === 'answer') {
       fields(message, ['type', 'round', 'requestId', 'order']);
       requireValue(validOrder(message.order) && typeof message.requestId === 'string' && /^[A-Za-z0-9_-]{1,64}$/.test(message.requestId));
@@ -171,13 +209,13 @@ export function createUnityPeerBridge({ generation, onEvent }, dependencies = {}
     } else throw new Error('Invalid command.');
     publish(session, session.engine.snapshot());
   }
-  async function begin(role, difficulty, code, noun, title) {
+  async function begin(role, difficulty, code, noun, title, health = 5) {
     if (disposed || (active && !active.closed)) return false;
     let profile;
-    try { profile = peerProfile(noun, title); requireValue(role === 'host' ? integer(difficulty, 0, 3) : /^\d{4}$/.test(code)); }
+    try { profile = peerProfile(noun, title); requireValue(role === 'host' ? integer(difficulty, 0, 3) && [3, 5, 7, 10].includes(health) : /^\d{4}$/.test(code)); }
     catch { return false; }
     const session = { role, seat: role === 'host' ? 0 : 1, code: '', profile, remote: null,
-      frozen: false, readySubmitted: false, profileTimes: [], changedTimes: [], commandTimes: [],
+      frozen: false, readySubmitted: false, loadedSubmitted: false, profileTimes: [], changedTimes: [], commandTimes: [],
       state: null, engine: null, link: null, timer: null, abort: new AbortController(), closed: false,
       lastBroadcast: 0, lastEmit: -Infinity, emittedRevision: -1 };
     active = session; emit(session, 'status', { message: role === 'host' ? 'Creating room.' : 'Joining room.' });
@@ -188,7 +226,7 @@ export function createUnityPeerBridge({ generation, onEvent }, dependencies = {}
         requireValue(Array.isArray(source) && source.length >= 4 && source.length <= 1024);
         const bank = source.map(puzzleCopy).filter(puzzle => puzzle.difficulty === difficulty);
         requireValue(bank.length >= 2); let previous = -1;
-        session.engine = new HostMatch({ now, pickPuzzle() {
+        session.engine = new HostMatch({ now, maxHp: health, pickPuzzle() {
           const candidates = bank.map((puzzle, index) => ({ puzzle, index })).filter(item => item.index !== previous);
           const selected = candidates[random() % candidates.length]; previous = selected.index; return selected.puzzle;
         }, onChange: next => publish(session, next) });
@@ -218,13 +256,14 @@ export function createUnityPeerBridge({ generation, onEvent }, dependencies = {}
             }, 100);
           }
         },
-        onMessage: message => receive(session, message), onClose: () => closed(session),
+        onMessage: message => receive(session, message), onClose: reason => closed(session, reason),
       });
       if (role === 'host') await session.link.host(); else await session.link.join(code);
       return current(session) && !session.closed;
-    } catch {
+    } catch (error) {
       if (current(session) && !session.closed) {
-        emit(session, 'error', { message: 'Unable to connect. Check the room code and try again.' }); closeOwned(session);
+        const message = safeConnectionFailure(error?.message);
+        emit(session, 'error', { message }); closeOwned(session, message);
       }
       return false;
     }
@@ -233,13 +272,20 @@ export function createUnityPeerBridge({ generation, onEvent }, dependencies = {}
     return active && !disposed && !active.closed && integer(number, 1, 1000) && active.state?.round === number && active.state?.phase === phase ? active : null;
   }
   return Object.freeze({
-    host: (difficulty, noun, title) => begin('host', difficulty, '', noun, title),
+    host: (difficulty, noun, title, health = 5) => begin('host', difficulty, '', noun, title, health),
     join: (code, noun, title) => begin('guest', 0, code, noun, title),
     ready(number) {
       const session = commandSession(number, 'ready');
       if (!session || session.readySubmitted || session.state.ready[session.seat]) return false;
       session.readySubmitted = true;
       if (session.role === 'host') session.engine.ready(0, number); else session.link.send({ type: 'ready', round: number });
+      return true;
+    },
+    loaded(number) {
+      const session = commandSession(number, 'loading');
+      if (!session || session.loadedSubmitted || session.state.loaded[session.seat]) return false;
+      session.loadedSubmitted = true;
+      if (session.role === 'host') session.engine.loaded(0, number); else session.link.send({ type: 'loaded', round: number });
       return true;
     },
     answer(number, order) {

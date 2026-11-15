@@ -8,37 +8,42 @@ from urllib.parse import urljoin, urlsplit
 
 root = Path(__file__).resolve().parents[1] / 'guest'
 base = 'https://felixsitu20.github.io/Summuition-Play/'
-expected_builds = {'game/Build/45602152548a1daf81bc496ec1e62b6a.data.unityweb': '7e9df258b30da152c0829bbb26e570f4f591d2d29709bcc0bc7cd62b390f62e2', 'game/Build/882bb2615940bf746a5874873d1a55d8.loader.js': 'cf7afd837484d527be7b8721ce69eb8dd40e78d35180a64b4e696ef36673fe32', 'game/Build/aabb7729bbfda26183ed117f45aeb44e.wasm.unityweb': '21c6a85b2e6cb80b5294e382876ca364fd74201f5af4036ecf91a8643b9d8585', 'game/Build/b034a33a55d600964f959ff72a72632c.framework.js.unityweb': '64ea2133ca3fbf8fad7993b8cea71fe03fcb09c58ca78f9213682e00efea6757'}
-expected_peers = {'game/summuition-peer/engine.mjs': '8eee600ac1ad074e46b77a69266509145a0e88a9aad5ca0d504e060bb733c0d4', 'game/summuition-peer/math.mjs': '171a5a7a3dad3b258c99a3cd7b63844dbd4cfa491cbec2da21696e0b6947eacf', 'game/summuition-peer/puzzles.json': 'a84987d228c9664a2d6d3ffb36d971bb3a69d57f5932f9f6c02ba98276aa1c1a', 'game/summuition-peer/transport.mjs': 'ae5be3ea31f3e1611cb1f15359d441969cf2806f4bc9d4d58bc5775210a6549c', 'game/summuition-peer/unity-peer-bridge.mjs': '3499bc53d126a4cf0b8499a220d9e2533e37d1c1c929aff65e31b70998a82ca6'}
+# Fail closed until the publisher pins the completed, reviewed test manifest.
+EXPECTED_MANIFEST_SHA256 = 'fb9286a2bbefb70d5b2f4cace2e392338dd734fcb0a8d73111d3dd9f0c583269'
+manifest_bytes = (root / 'publication-manifest.json').read_bytes()
+assert hashlib.sha256(manifest_bytes).hexdigest() == EXPECTED_MANIFEST_SHA256, 'Unreviewed test manifest'
+manifest = json.loads(manifest_bytes)
+assert manifest['product'] == 'Summuition'
+assert manifest['channel'] == 'connected-school-network-test'
+assert manifest['access'] == 'public-session-gated-not-authentication'
+for flag in ('schoolApproval', 'schoolChromebook', 'releaseReady', 'studentPlayEnabled'):
+    assert manifest[flag] is False, flag
+assert manifest['onlineCompetition'] is True
+assert manifest['contentAuditPassed'] is True
+assert manifest['sessionGatePreserved'] is True
+assert manifest['schoolVerificationStatus'] == 'pending-owner-network-test'
+assert manifest['pausedStatusUrl'] == 'https://raw.githubusercontent.com/FelixSitu20/Summuition-Play/session-control/session.json'
+assert len(manifest['contentAuditSha256']) == 64
+assert len(manifest['pausedSnapshotSha256']) == 64
+entries = manifest['files'] + manifest['hostFiles']
+assert len(entries) == len({e['path'] for e in entries}), 'Duplicate payload entries'
+expected_builds = {e['path']: e['sha256'] for e in entries if e['path'].startswith('game/Build/')}
+expected_peers = {e['path']: e['sha256'] for e in entries if e['path'].startswith('game/summuition-peer/')}
+assert set(expected_peers) == {'game/summuition-peer/' + name for name in ('engine.mjs','math.mjs','transport.mjs','puzzles.json','unity-peer-bridge.mjs')}
+assert len(expected_builds) == 4
+for suffix in ('.loader.js','.data.unityweb','.framework.js.unityweb','.wasm.unityweb'):
+    assert sum(name.endswith(suffix) for name in expected_builds) == 1
+assert all(__import__('re').fullmatch(r'game/Build/[a-f0-9]+\.(loader\.js|data\.unityweb|framework\.js\.unityweb|wasm\.unityweb)', name) for name in expected_builds)
 expected_files = set(expected_builds) | set(expected_peers) | {'index.html', 'game/index.html', 'robots.txt', '.nojekyll', 'publication-manifest.json', 'session-control.js', 'session-ended.html'}
 expected_dirs = {'game', 'game/Build', 'game/summuition-peer'}
 assert all(not p.is_symlink() for p in root.rglob('*')), 'Symlinks are not allowed'
 assert {p.relative_to(root).as_posix() for p in root.rglob('*') if p.is_file() and 'pilots' not in p.relative_to(root).parts} == expected_files
 assert {p.relative_to(root).as_posix() for p in root.rglob('*') if p.is_dir() and 'pilots' not in p.relative_to(root).parts} == expected_dirs
-manifest = json.loads((root / 'publication-manifest.json').read_text())
-assert manifest['product'] == 'Summuition'
-assert manifest['channel'] == 'public-guest-test'
-assert manifest['publicationMode'] == 'public-guest-direct'
-assert manifest['access'] == 'public-no-authentication'
-assert manifest['schoolAuthentication'] is False
-assert manifest['onlineCompetition'] is False
-assert manifest['payloadContainsUnitySource'] is False
-assert manifest['publicUrl'] == base
-assert manifest['gameUrl'] == base + 'game/'
-assert manifest['hostDisplayValidation']['compiledGameUnchanged'] is False
-assert manifest['hostDisplayValidation']['rebuiltPlayerAudited'] is True
-assert manifest['contentAuditSha256'] == '1fcbd719a1194aa3ab90ff64de2650fd119dbd011310a456d3123d6b23996db9'
-entries = manifest['files']
-assert len(entries) == len(expected_files) - 1
 assert {e['path'] for e in entries} == expected_files - {'publication-manifest.json'}
 for entry in entries:
     data = (root / entry['path']).read_bytes()
     assert len(data) == entry['bytes'], entry['path']
     assert hashlib.sha256(data).hexdigest() == entry['sha256'], entry['path']
-    if entry['path'] in expected_peers:
-        assert entry['sha256'] == expected_peers[entry['path']], entry['path']
-    if entry['path'] in expected_builds:
-        assert entry['sha256'] == expected_builds[entry['path']], entry['path']
 assert sum((root / f).stat().st_size for f in expected_files) < 20 * 1024 * 1024
 assert (root / '.nojekyll').read_bytes() == b''
 
@@ -65,6 +70,8 @@ for name in ('index.html', 'game/index.html', 'session-ended.html'):
         assert "window.location.replace('../session-ended.html?reason='+encodeURIComponent(reason));" in html
         assert '<script src="../session-control.js"></script>' in html
         assert 'onAllowed:startGame' in html
+        assert 'onDenied:endSession' in html and 'sessionGate.start()' in html
+        assert 'if(!sessionGate.isActive())' in html and "endSession('unreachable')" in html
     assert '<iframe' not in html.lower()
     page = Links()
     page.feed(html)
@@ -75,7 +82,8 @@ for name in ('index.html', 'game/index.html', 'session-ended.html'):
     if name == 'index.html':
         assert page.refs == ['game/']
         assert 'School sign-in is not enabled.' in html
-        assert hashlib.sha256((root / name).read_bytes()).hexdigest() == manifest['hostPresentation']['sha256']
+        assert 'Connected school-network TEST' in html and 'School approval and school-device verification are pending.' in html
+        assert hashlib.sha256((root / name).read_bytes()).hexdigest() == next(e['sha256'] for e in manifest['hostFiles'] if e['path'] == name)
     elif name == 'game/index.html':
         for file in expected_builds:
             assert "'" + file.removeprefix('game/') + "'" in html
@@ -92,6 +100,7 @@ assert 'Play continues while we retry.' in control
 assert not any(secret in control for secret in ('Authorization', 'ghp_', 'github_pat_'))
 assert manifest['sessionControl']['repositoryId'] == 1450788815
 assert manifest['sessionControl']['accessControl'] is False
+assert hashlib.sha256((root/'session-control.js').read_bytes()).hexdigest() == manifest['reviewedHostSha256']['session-control.js']
 
 # Unity's built-in fallback handles its gzip payload without custom response headers.
 for file in expected_builds:
@@ -100,6 +109,6 @@ for file in expected_builds:
         assert unpacked
         if '.wasm.' in file:
             assert unpacked.startswith(b'\x00asm')
-loader = (root / 'game/Build/882bb2615940bf746a5874873d1a55d8.loader.js').read_text()
+loader = (root / next(name for name in expected_builds if name.endswith('.loader.js'))).read_text()
 assert 'gzip' in loader
 print('PASS: exact build-only payload, all file sizes and hashes, audited rebuilt player assets, relative project paths, no external hosting redirect or UI, mobile wrapper, and gzip/WebAssembly integrity.')
