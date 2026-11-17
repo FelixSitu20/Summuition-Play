@@ -54,10 +54,12 @@ function puzzleCopy(value) {
 }
 // Project every nested value; credentials and unknown fields never reach Unity.
 export function sanitizePeerState(value) {
-  fields(value, ['phase', 'revision', 'round', 'maxHp', 'hp', 'ready', 'remainingSeconds', 'resultSeconds', 'timerSeconds', 'loaded', 'revealSeconds',
+  fields(value, ['phase', 'matchId', 'rematchReady', 'revision', 'round', 'maxHp', 'hp', 'ready', 'remainingSeconds', 'resultSeconds', 'timerSeconds', 'loaded', 'revealSeconds',
     'puzzle', 'lastResult', 'lastAttempts', 'winnerIndex', 'reason']);
   const maxHp = value.maxHp === undefined ? 5 : value.maxHp; // Legacy fixed-five snapshots only.
   requireValue([3, 5, 7, 10].includes(maxHp));
+  requireValue(integer(value.matchId, 1, 2147483647) && Array.isArray(value.rematchReady) && value.rematchReady.length === 2 && value.rematchReady.every(v => typeof v === 'boolean'));
+  requireValue(value.phase === 'finished' || value.rematchReady.every(v => !v));
   requireValue(phases.has(value.phase) && integer(value.revision, 0, 2147483647) && integer(value.round, 0, 1000) &&
     Array.isArray(value.hp) && value.hp.length === 2 && value.hp.every(hp => integer(hp, 0, maxHp)) &&
     Array.isArray(value.ready) && value.ready.length === 2 && value.ready.every(ready => typeof ready === 'boolean') &&
@@ -83,7 +85,7 @@ export function sanitizePeerState(value) {
       Array.isArray(result.damage) && result.damage.length === 2 && result.damage.every(damage => integer(damage, 0, 1)));
     lastResult = { round: result.round, winnerIndex: result.winnerIndex, timedOut: result.timedOut, damage: [...result.damage] };
   }
-  return { phase: value.phase, revision: value.revision, round: value.round, maxHp, hp: [...value.hp], ready: [...value.ready],
+  return { phase: value.phase, matchId: value.matchId, rematchReady: [...value.rematchReady], revision: value.revision, round: value.round, maxHp, hp: [...value.hp], ready: [...value.ready],
     loaded: [...value.loaded], revealSeconds: value.revealSeconds, remainingSeconds: value.remainingSeconds, resultSeconds: value.resultSeconds, timerSeconds: 60,
     puzzle, lastResult, lastAttempts, winnerIndex: value.winnerIndex,
     reason: value.phase === 'abandoned' ? 'Connection ended. No win awarded.' : null };
@@ -137,11 +139,14 @@ export function createUnityPeerBridge({ generation, onEvent }, dependencies = {}
   function apply(session, raw, force = false) {
     if (!current(session)) return;
     const next = sanitizePeerState(raw);
-    if (session.state && next.revision < session.state.revision) return;
+    if (session.state && (next.matchId < session.state.matchId || next.revision < session.state.revision)) return;
+    const newMatch = session.state && next.matchId !== session.state.matchId;
+    if (newMatch && (next.matchId !== session.state.matchId + 1 || session.state.phase !== 'finished' || next.round !== 1 || next.phase !== 'loading' || next.hp.some(h => h !== next.maxHp))) throw new Error('Invalid rematch transition.');
+    if (session.state?.puzzle && next.puzzle && next.puzzle.hand.length !== session.state.puzzle.hand.length) throw new Error('Card count changed.');
     if (session.state && next.maxHp !== session.state.maxHp) throw new Error('Health setting changed.');
-    if (session.state && next.round < session.state.round) throw new Error('Invalid peer round.');
+    if (session.state && !newMatch && next.round < session.state.round) throw new Error('Invalid peer round.');
     if (['loading', 'revealing', 'playing', 'result', 'finished'].includes(next.phase)) session.frozen = true;
-    if (!session.state || next.round !== session.state.round) { session.readySubmitted = false; session.loadedSubmitted = false; }
+    if (!session.state || newMatch || next.round !== session.state.round) { session.readySubmitted = false; session.loadedSubmitted = false; session.rematchSubmitted = false; }
     session.state = next;
     const timestamp = now();
     if (force || next.revision !== session.emittedRevision || timestamp - session.lastEmit >= 200) {
@@ -193,29 +198,31 @@ export function createUnityPeerBridge({ generation, onEvent }, dependencies = {}
     if (!current(session) || session.closed) return;
     requireValue(message && typeof message === 'object' && !Array.isArray(message));
     if (message.type === 'profile') { incomingProfile(session, message); return; }
-    fields(message, ['type', 'state', 'round', 'requestId', 'order']);
+    fields(message, ['type', 'state', 'round', 'requestId', 'order', 'matchId']);
     if (session.role === 'guest') {
       fields(message, ['type', 'state']); requireValue(message.type === 'state'); apply(session, message.state); return;
     }
+    if (message.matchId !== session.state?.matchId) return; // Late/missing epochs cannot act on a rematch.
+    if (message.type === 'rematch') { fields(message, ['type', 'matchId']); session.engine.rematch(1, message.matchId); return; }
     const timestamp = now(); session.commandTimes = session.commandTimes.filter(at => timestamp - at < 1000);
     requireValue(session.commandTimes.length < 30); session.commandTimes.push(timestamp);
     requireValue(integer(message.round, 1, 1000));
-    if (message.type === 'ready') { fields(message, ['type', 'round']); session.engine.ready(1, message.round); }
-    else if (message.type === 'loaded') { fields(message, ['type', 'round']); session.engine.loaded(1, message.round); }
+    if (message.type === 'ready') { fields(message, ['type', 'round', 'matchId']); session.engine.ready(1, message.round, message.matchId); }
+    else if (message.type === 'loaded') { fields(message, ['type', 'round', 'matchId']); session.engine.loaded(1, message.round, message.matchId); }
     else if (message.type === 'answer') {
-      fields(message, ['type', 'round', 'requestId', 'order']);
-      requireValue(validOrder(message.order) && typeof message.requestId === 'string' && /^[A-Za-z0-9_-]{1,64}$/.test(message.requestId));
-      session.engine.answer(1, { requestId: message.requestId, round: message.round, order: message.order });
+      fields(message, ['type', 'round', 'requestId', 'order', 'matchId']);
+      requireValue(validOrder(message.order, session.state?.puzzle?.hand.length ?? 5) && typeof message.requestId === 'string' && /^[A-Za-z0-9_-]{1,64}$/.test(message.requestId));
+      session.engine.answer(1, { matchId: message.matchId, requestId: message.requestId, round: message.round, order: message.order });
     } else throw new Error('Invalid command.');
     publish(session, session.engine.snapshot());
   }
-  async function begin(role, difficulty, code, noun, title, health = 5) {
+  async function begin(role, difficulty, code, noun, title, health = 5, cardCount = 5) {
     if (disposed || (active && !active.closed)) return false;
     let profile;
-    try { profile = peerProfile(noun, title); requireValue(role === 'host' ? integer(difficulty, 0, 3) && [3, 5, 7, 10].includes(health) : /^\d{4}$/.test(code)); }
+    try { profile = peerProfile(noun, title); requireValue(role === 'host' ? integer(difficulty, 0, 3) && [3, 5, 7, 10].includes(health) && integer(cardCount, 2, 5) : /^\d{4}$/.test(code)); }
     catch { return false; }
     const session = { role, seat: role === 'host' ? 0 : 1, code: '', profile, remote: null,
-      frozen: false, readySubmitted: false, loadedSubmitted: false, profileTimes: [], changedTimes: [], commandTimes: [],
+      frozen: false, rematchSubmitted: false, readySubmitted: false, loadedSubmitted: false, profileTimes: [], changedTimes: [], commandTimes: [],
       state: null, engine: null, link: null, timer: null, abort: new AbortController(), closed: false,
       lastBroadcast: 0, lastEmit: -Infinity, emittedRevision: -1 };
     active = session; emit(session, 'status', { message: role === 'host' ? 'Creating room.' : 'Joining room.' });
@@ -224,7 +231,7 @@ export function createUnityPeerBridge({ generation, onEvent }, dependencies = {}
         const source = await loadBank(session.abort.signal);
         if (!current(session) || session.closed) return false;
         requireValue(Array.isArray(source) && source.length >= 4 && source.length <= 1024);
-        const bank = source.map(puzzleCopy).filter(puzzle => puzzle.difficulty === difficulty);
+        const bank = source.map(puzzleCopy).filter(puzzle => puzzle.difficulty === difficulty && puzzle.hand.length === cardCount);
         requireValue(bank.length >= 2); let previous = -1;
         session.engine = new HostMatch({ now, maxHp: health, pickPuzzle() {
           const candidates = bank.map((puzzle, index) => ({ puzzle, index })).filter(item => item.index !== previous);
@@ -268,30 +275,37 @@ export function createUnityPeerBridge({ generation, onEvent }, dependencies = {}
       return false;
     }
   }
-  function commandSession(number, phase) {
-    return active && !disposed && !active.closed && integer(number, 1, 1000) && active.state?.round === number && active.state?.phase === phase ? active : null;
+  function commandSession(number, phase, matchId) {
+    return active && !disposed && !active.closed && integer(number, 1, 1000) && active.state?.matchId === matchId && active.state?.round === number && active.state?.phase === phase ? active : null;
   }
   return Object.freeze({
-    host: (difficulty, noun, title, health = 5) => begin('host', difficulty, '', noun, title, health),
+    host: (difficulty, noun, title, health = 5, cardCount = 5) => begin('host', difficulty, '', noun, title, health, cardCount),
     join: (code, noun, title) => begin('guest', 0, code, noun, title),
-    ready(number) {
-      const session = commandSession(number, 'ready');
+    ready(number, matchId) {
+      const session = commandSession(number, 'ready', matchId);
       if (!session || session.readySubmitted || session.state.ready[session.seat]) return false;
       session.readySubmitted = true;
-      if (session.role === 'host') session.engine.ready(0, number); else session.link.send({ type: 'ready', round: number });
+      if (session.role === 'host') session.engine.ready(0, number, matchId); else session.link.send({ type: 'ready', round: number, matchId });
       return true;
     },
-    loaded(number) {
-      const session = commandSession(number, 'loading');
+    loaded(number, matchId) {
+      const session = commandSession(number, 'loading', matchId);
       if (!session || session.loadedSubmitted || session.state.loaded[session.seat]) return false;
       session.loadedSubmitted = true;
-      if (session.role === 'host') session.engine.loaded(0, number); else session.link.send({ type: 'loaded', round: number });
+      if (session.role === 'host') session.engine.loaded(0, number, matchId); else session.link.send({ type: 'loaded', round: number, matchId });
       return true;
     },
-    answer(number, order) {
-      const session = commandSession(number, 'playing'); if (!session || !validOrder(order)) return false;
-      const request = { requestId: requestId(), round: number, order: [...order] };
+    answer(number, order, matchId) {
+      const session = commandSession(number, 'playing', matchId); if (!session || !validOrder(order, session.state?.puzzle?.hand.length ?? 5)) return false;
+      const request = { matchId, requestId: requestId(), round: number, order: [...order] };
       if (session.role === 'host') session.engine.answer(0, request); else session.link.send({ type: 'answer', ...request });
+      return true;
+    },
+    rematch(matchId) {
+      const session = active;
+      if (!session || disposed || session.closed || session.state?.phase !== 'finished' || session.state.matchId !== matchId || session.rematchSubmitted || session.state.rematchReady[session.seat]) return false;
+      session.rematchSubmitted = true;
+      if (session.role === 'host') session.engine.rematch(0, matchId); else session.link.send({ type: 'rematch', matchId });
       return true;
     },
     profile(noun, title) {

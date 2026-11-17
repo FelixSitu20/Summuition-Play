@@ -66,13 +66,13 @@ export function accepts(puzzle, result) {
     : Math.abs(result - puzzle.goal) <= EPSILON;
 }
 
-export function validOrder(order) {
-  return Array.isArray(order) && order.length === 5 && new Set(order).size === 5 &&
-    order.every(index => Number.isInteger(index) && index >= 0 && index < 5);
+export function validOrder(order, count = 5) {
+  return Array.isArray(order) && Number.isInteger(count) && count >= 2 && count <= 5 && order.length === count && new Set(order).size === count &&
+    order.every(index => Number.isInteger(index) && index >= 0 && index < count);
 }
 
 export function evaluateOrder(puzzle, order) {
-  if (!validOrder(order)) throw new TypeError('Use each of the five cards exactly once.');
+  if (!validOrder(order, puzzle?.hand?.length)) throw new TypeError('Use each card exactly once.');
   const steps = resolve(order.map(index => puzzle.hand[index]), puzzle.startValue);
   const hasValue = steps.every(step => Number.isFinite(step.after) && Math.abs(step.after) <= LIMIT);
   const value = hasValue ? round(steps.at(-1).after) : 0;
@@ -81,7 +81,7 @@ export function evaluateOrder(puzzle, order) {
 
 export function validatePuzzle(puzzle) {
   const finite = value => typeof value === 'number' && Number.isFinite(value) && Math.abs(value) <= LIMIT;
-  if (!puzzle || !Array.isArray(puzzle.hand) || puzzle.hand.length !== 5 ||
+  if (!puzzle || !Array.isArray(puzzle.hand) || (puzzle.hand.length < 2 || puzzle.hand.length > 5) ||
       !Number.isInteger(puzzle.direction) || puzzle.direction < 0 || puzzle.direction > 2 ||
       !finite(puzzle.goal) || !finite(puzzle.margin) || puzzle.margin < 0 || !finite(puzzle.startValue) ||
       typeof puzzle.integerBounds !== 'boolean' || puzzle.hand.some(card => !card ||

@@ -68,3 +68,9 @@
 !guest/pilots/connection-20261115-b7e2/game/summuition-peer/
 !guest/pilots/connection-20261115-b7e2/game/summuition-peer/*.mjs
 !guest/pilots/connection-20261115-b7e2/game/summuition-peer/puzzles.json
+
+# Exact audited loading-font payload for the student update.
+!guest/game/TemplateData/
+!guest/game/TemplateData/Beholden-Regular.ttf
+!guest/game/TemplateData/Beholden-Bold.ttf
+!guest/game/TemplateData/Beholden-LICENSE.txt

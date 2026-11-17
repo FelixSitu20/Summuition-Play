@@ -9,7 +9,7 @@ from urllib.parse import urljoin, urlsplit
 root = Path(__file__).resolve().parents[1] / 'guest'
 base = 'https://felixsitu20.github.io/Summuition-Play/'
 # Fail closed until the publisher pins the completed, reviewed test manifest.
-EXPECTED_MANIFEST_SHA256 = '686112d8d5e46d829bfc87a330f202ad75a60b02e54936f17a16db918fd1116c'
+EXPECTED_MANIFEST_SHA256 = '8fa95b46ac523af41df9ed75218adc39d8cb9a1b3b2cef545b972bcfa98a3ee6'
 manifest_bytes = (root / 'publication-manifest.json').read_bytes()
 assert hashlib.sha256(manifest_bytes).hexdigest() == EXPECTED_MANIFEST_SHA256, 'Unreviewed test manifest'
 manifest = json.loads(manifest_bytes)
@@ -34,8 +34,10 @@ assert len(expected_builds) == 4
 for suffix in ('.loader.js','.data.unityweb','.framework.js.unityweb','.wasm.unityweb'):
     assert sum(name.endswith(suffix) for name in expected_builds) == 1
 assert all(__import__('re').fullmatch(r'game/Build/[a-f0-9]+\.(loader\.js|data\.unityweb|framework\.js\.unityweb|wasm\.unityweb)', name) for name in expected_builds)
-expected_files = set(expected_builds) | set(expected_peers) | {'index.html', 'game/index.html', 'robots.txt', '.nojekyll', 'publication-manifest.json', 'session-control.js', 'session-ended.html'}
-expected_dirs = {'game', 'game/Build', 'game/summuition-peer'}
+expected_fonts = {'game/TemplateData/' + name for name in ('Beholden-Regular.ttf', 'Beholden-Bold.ttf', 'Beholden-LICENSE.txt')}
+assert {e['path'] for e in entries if e['path'].startswith('game/TemplateData/')} == expected_fonts
+expected_files = expected_fonts | set(expected_builds) | set(expected_peers) | {'index.html', 'game/index.html', 'robots.txt', '.nojekyll', 'publication-manifest.json', 'session-control.js', 'session-ended.html'}
+expected_dirs = {'game', 'game/Build', 'game/summuition-peer', 'game/TemplateData'}
 assert all(not p.is_symlink() for p in root.rglob('*')), 'Symlinks are not allowed'
 assert {p.relative_to(root).as_posix() for p in root.rglob('*') if p.is_file() and 'pilots' not in p.relative_to(root).parts} == expected_files
 assert {p.relative_to(root).as_posix() for p in root.rglob('*') if p.is_dir() and 'pilots' not in p.relative_to(root).parts} == expected_dirs
@@ -44,7 +46,8 @@ for entry in entries:
     data = (root / entry['path']).read_bytes()
     assert len(data) == entry['bytes'], entry['path']
     assert hashlib.sha256(data).hexdigest() == entry['sha256'], entry['path']
-assert sum((root / f).stat().st_size for f in expected_files) < 20 * 1024 * 1024
+assert sum((root / f).stat().st_size for f in expected_files) == 27643438, 'Reviewed payload byte count changed'
+assert sum((root / f).stat().st_size for f in expected_files) < 32 * 1024 * 1024
 assert (root / '.nojekyll').read_bytes() == b''
 
 class Links(HTMLParser):

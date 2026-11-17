@@ -8,7 +8,7 @@ const source=html.match(/<script>([\s\S]*?)<\/script>/)[1];
 new vm.Script(source);
 function harness({width=393,height=600,dpr=2.75,coarse=true,fullscreen=true,lock='success',loader='success'}={}){
   const elements={};
-  for(const id of ['player','stage','game','canvas','status','message','fullscreen','display-hint','progress']){
+  for(const id of ['player','stage','game','canvas','status','message','fullscreen','display-hint','progress','loading-track','fill','diamond','percent']){
     elements[id]={style:{},clientWidth:width,clientHeight:height,disabled:false,hidden:false,events:{},addEventListener(n,f){this.events[n]=f},focus(){this.focused=true}};
   }
   const events={};

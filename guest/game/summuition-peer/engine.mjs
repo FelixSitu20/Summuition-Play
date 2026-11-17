@@ -4,7 +4,7 @@ import { evaluateOrder, validOrder, validatePuzzle } from './math.mjs';
 // to its clock, puzzle selection, answer processing, Health or match results.
 export class HostMatch {
   #now; #pickPuzzle; #onChange; #lastNow = 0; #deadline = 0; #resultUntil = 0;
-  #loadUntil = 0; #revealUntil = 0;
+  #loadUntil = 0; #revealUntil = 0; #disconnected = false;
   #receipts = [new Map(), new Map()]; #roundSeconds; #state;
 
   constructor({ now = () => performance.now(), pickPuzzle, onChange = () => {}, roundSeconds = 60, maxHp = 5 } = {}) {
@@ -14,7 +14,7 @@ export class HostMatch {
       throw new RangeError('Round duration must be between 1 and 60 seconds.');
     if (![3, 5, 7, 10].includes(maxHp)) throw new RangeError('Health must be 3, 5, 7 or 10.');
     this.#now = now; this.#pickPuzzle = pickPuzzle; this.#onChange = onChange; this.#roundSeconds = roundSeconds;
-    this.#state = { phase: 'waiting', revision: 0, round: 0, maxHp, hp: [maxHp, maxHp], ready: [false, false], loaded: [false, false],
+    this.#state = { phase: 'waiting', matchId: 1, rematchReady: [false, false], revision: 0, round: 0, maxHp, hp: [maxHp, maxHp], ready: [false, false], loaded: [false, false],
       remainingSeconds: 0, puzzle: null, lastResult: null, lastAttempts: [null, null], winnerIndex: -2,
       reason: null, timerSeconds: roundSeconds };
     this.#time();
@@ -67,8 +67,9 @@ export class HostMatch {
     this.#state.round = 1; this.#state.phase = 'ready';
     this.#notify(); return { ok: true, code: 'connected' };
   }
-  ready(seat, round) {
+  ready(seat, round, matchId) {
     if (!this.#validSeat(seat)) return { ok: false, code: 'invalid_seat' };
+    if (this.#disconnected || matchId !== this.#state.matchId) return { ok: false, code: 'stale_match' };
     const now = this.#time(); this.#advance(now);
     if (round !== this.#state.round || this.#state.phase !== 'ready') return { ok: false, code: 'state_changed' };
     if (this.#state.ready[seat]) return { ok: true, code: 'already_ready' };
@@ -76,8 +77,9 @@ export class HostMatch {
     if (this.#state.ready.every(Boolean)) this.#deal(now, true);
     this.#notify(); return { ok: true, code: 'ready' };
   }
-  loaded(seat, round) {
+  loaded(seat, round, matchId) {
     if (!this.#validSeat(seat)) return { ok: false, code: 'invalid_seat' };
+    if (this.#disconnected || matchId !== this.#state.matchId) return { ok: false, code: 'stale_match' };
     const now = this.#time(); this.#advance(now);
     if (round !== this.#state.round || this.#state.phase !== 'loading') return { ok: false, code: 'state_changed' };
     if (this.#state.loaded[seat]) return { ok: true, code: 'already_loaded' };
@@ -88,9 +90,10 @@ export class HostMatch {
   answer(seat, request) {
     if (!this.#validSeat(seat)) return { ok: false, code: 'invalid_seat' };
     if (!request || typeof request !== 'object' || Array.isArray(request) ||
-        Object.keys(request).some(key => !['requestId', 'round', 'order'].includes(key)) ||
+        Object.keys(request).some(key => !['requestId', 'round', 'order', 'matchId'].includes(key)) ||
         typeof request.requestId !== 'string' || !/^[A-Za-z0-9_-]{1,64}$/.test(request.requestId) ||
-        !Number.isSafeInteger(request.round) || !validOrder(request.order)) return { ok: false, code: 'invalid_answer' };
+        !Number.isSafeInteger(request.round) || !validOrder(request.order, this.#state.puzzle?.hand.length ?? 5)) return { ok: false, code: 'invalid_answer' };
+    if (this.#disconnected || request.matchId !== this.#state.matchId) return { ok: false, code: 'stale_match' };
     const now = this.#time(); this.#advance(now);
     const fingerprint = JSON.stringify([request.round, request.order]);
     const receipt = this.#receipts[seat].get(request.requestId);
@@ -107,8 +110,24 @@ export class HostMatch {
     if (attempt.correct) this.#finishRound(seat, false, now);
     this.#notify(); return { ok: true, code: attempt.correct ? 'correct' : 'wrong', attempt: structuredClone(attempt) };
   }
+  rematch(seat, matchId) {
+    if (!this.#validSeat(seat) || this.#disconnected || matchId !== this.#state.matchId || this.#state.phase !== 'finished') return { ok: false, code: 'state_changed' };
+    if (this.#state.rematchReady[seat]) return { ok: true, code: 'already_ready' };
+    if (this.#state.matchId >= 2147483647) return { ok: false, code: 'match_limit' };
+    this.#state.rematchReady[seat] = true;
+    if (this.#state.rematchReady.every(Boolean)) {
+      this.#state.matchId++; this.#state.round = 1;
+      this.#state.hp = [this.#state.maxHp, this.#state.maxHp];
+      this.#state.rematchReady = [false, false]; this.#state.lastResult = null;
+      this.#state.lastAttempts = [null, null]; this.#state.winnerIndex = -2;
+      this.#receipts = [new Map(), new Map()]; this.#revealUntil = 0;
+      this.#deal(this.#time(), true);
+    }
+    this.#notify(); return { ok: true, code: 'rematch_ready' };
+  }
   tick() { this.#advance(this.#time()); return this.snapshot(); }
   disconnect(reason = 'Connection lost. Start a new room to play again.') {
+    this.#disconnected = true;
     if (this.#state.phase === 'finished' || this.#state.phase === 'abandoned') return { ok: true, code: 'closed' };
     this.#state.phase = 'abandoned'; this.#state.reason = typeof reason === 'string' ? reason.slice(0, 180) : 'Connection lost.';
     this.#state.winnerIndex = -2; this.#state.ready = [false, false]; this.#deadline = 0; this.#resultUntil = 0;

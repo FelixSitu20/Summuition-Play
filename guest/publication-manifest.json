@@ -7,50 +7,50 @@
   "phonePcVerified": false,
   "releaseReady": false,
   "contentAuditPassed": true,
-  "contentAuditSha256": "af7ca483e28c1c612a77a8b55b89ace8106a447a82dbe77d272e28e011e4f4be",
+  "contentAuditSha256": "6dc95cd39ca5f29c8d8b496c63abd4e575941ed41e71f07fc333295fdbca90b0",
   "desktopCanvas": true,
   "liveBridgeRoundTrip": true,
-  "builtUtc": "2026-11-15T07:24:59.0504715Z",
+  "builtUtc": "2026-11-17T03:55:29.2628073Z",
   "files": [
     {
-      "path": "game/Build/69a5243dd4548fa2175f9a42b131a6ab.wasm.unityweb",
-      "sha256": "62ca7d0749625425596b7727d75d75066e777428705dfbdecbafe51cbed2916d",
-      "bytes": 11103999
-    },
-    {
-      "path": "game/Build/9693abae2c3810dd28e3485c96107ffa.data.unityweb",
-      "sha256": "bb8125e0dd55108ba275d9c54bb6de22974ac6916fede8f8576ce8b8aab90e2e",
-      "bytes": 5422463
-    },
-    {
-      "path": "game/Build/a83e2feb6bd63d1b35f101ce741cee62.framework.js.unityweb",
-      "sha256": "d03f458d1167a8a70e8321efb09b67dd34e4b648cb269a647030f732f3f21c32",
-      "bytes": 96552
-    },
-    {
-      "path": "game/Build/fd4c368e36f4ebbddb9bbe83a8aa069e.loader.js",
-      "sha256": "b0a94ee480e1cac8a92776625ca0e28f337df2dc12bbf9d765b1d3fcef9ef3bf",
+      "path": "game/Build/27ced21524e795b85c805b5a14560686.loader.js",
+      "sha256": "6a535c4d8c2d9d978c3afa388a340fdeedb6af5d4476cb5ae2e8f80064a27990",
       "bytes": 40316
     },
     {
+      "path": "game/Build/7911211ba555eddd6127fc9100f3f5f7.wasm.unityweb",
+      "sha256": "4c304e4fc029ee215dc9de2a0d0d2acc4ef6f14aaac1f6689ed86e36e3d3a55e",
+      "bytes": 11121058
+    },
+    {
+      "path": "game/Build/d81391fa8882083a1c8dee0d69c1ccc0.data.unityweb",
+      "sha256": "2a0c1493fe388cb5539a2fb68e4103094288eba3eef7041e96ef01fe0efa5a7f",
+      "bytes": 14167074
+    },
+    {
+      "path": "game/Build/ed228ac7383910e59bbd94d2588d490e.framework.js.unityweb",
+      "sha256": "4a8a54fef0600f50241cb6a9bad3e63904f6afaa460cd1e6651e280449e567d5",
+      "bytes": 96677
+    },
+    {
       "path": "game/index.html",
-      "sha256": "b8644cda7ee56db1fe87e8af9dbd9f56d105fe6ee8c93f681f524669101ef9bf",
-      "bytes": 688800
+      "sha256": "dfa4e414982bd958ef612ffeeaf9e2fb361eb577e87a5503268e41a42e410ecc",
+      "bytes": 129313
     },
     {
       "path": "game/summuition-peer/engine.mjs",
-      "sha256": "783d40c70c2a8802a34024a379b10d66d9ab99ee2b8e34d8cc7ae073ed376cd7",
-      "bytes": 7639
+      "sha256": "dc05e95300a6a66605dddc6aafb53cb3045a410cb7a4a29972d5a9677e5a097d",
+      "bytes": 9062
     },
     {
       "path": "game/summuition-peer/math.mjs",
-      "sha256": "171a5a7a3dad3b258c99a3cd7b63844dbd4cfa491cbec2da21696e0b6947eacf",
-      "bytes": 4039
+      "sha256": "00ae55c899885faecd9ceb7d4c25718b6a44ab2ac9d3044dda5752a01d543ede",
+      "bytes": 4244
     },
     {
       "path": "game/summuition-peer/puzzles.json",
-      "sha256": "b0683edf7f7b3bf7bfc9c0cf3cc877e161ce34c281ee52df23889b8b2859320e",
-      "bytes": 34807
+      "sha256": "f9916655159b284bb67f070a02c1bc7ce2349be57adebe036750a0de3a6e5723",
+      "bytes": 119946
     },
     {
       "path": "game/summuition-peer/transport.mjs",
@@ -59,12 +59,28 @@
     },
     {
       "path": "game/summuition-peer/unity-peer-bridge.mjs",
-      "sha256": "4313f58b7c0d2c8205a48a7f9b9f790e6c25c09c5d0a38db91706b926a137616",
-      "bytes": 19557
+      "sha256": "34185959b9a0ac03e727fd8b1382746193e05c1d0bd7529ece8a17f313c224a9",
+      "bytes": 21648
+    },
+    {
+      "path": "game/TemplateData/Beholden-Bold.ttf",
+      "sha256": "d8c800652e69c576430148dffc089c3736f10b8144f832462a9a207f05650ac0",
+      "bytes": 306316
+    },
+    {
+      "path": "game/TemplateData/Beholden-LICENSE.txt",
+      "sha256": "49c42fc72d59f444ad4af98bdaa8a61490651e24d02ac95dfdb3f61e5519cc6a",
+      "bytes": 4478
+    },
+    {
+      "path": "game/TemplateData/Beholden-Regular.ttf",
+      "sha256": "0c3cb9155a8d6c64a8902b322fd375110aa8f0c65008b9480743be50dd87a6cf",
+      "bytes": 115012
     }
   ],
-  "auditedPlayerIndexSha256": "e7b6963c3ad9f540018c1ed3feaa77a371877a1c3420df52ef1b25fb37958018",
+  "auditedPlayerIndexSha256": "bd2e71909ff7bac9fc1ed11b595cb6b248db5dcbfad5e6c035451856586e90ff",
   "mobileHostWrapperAdapted": true,
+  "raidPilot": false,
   "hostFiles": [
     {
       "path": "index.html",
@@ -98,7 +114,7 @@
   "studentPlayEnabled": false,
   "sessionGatePreserved": true,
   "schoolVerificationStatus": "pending-owner-network-test",
-  "pausedSnapshotSha256": "617d1a20252d9fda85f967de5fc15c6d001d791e29a31ccdafa015fc90dc19aa",
+  "pausedSnapshotSha256": "4057cf3f1f7a672e5e8a064f1c9d04d66cbfbd8c5bf9a281146719e1b2a90cf6",
   "pausedStatusUrl": "https://raw.githubusercontent.com/FelixSitu20/Summuition-Play/session-control/session.json",
   "sessionControl": {
     "repositoryId": 1450788815,
@@ -106,7 +122,7 @@
   },
   "reviewedHostSha256": {
     "index.html": "827e28d188289536d538383fbd1928f0bde3837e4494e9ee35713aacc72f92c6",
-    "game/index.html": "ea3cddebcf7a6f69e79473a18466e601e8c69abe47e6a25c53075a60c7dbd78f",
+    "game/index.html": "b84f62a6de59c18f48b87e427569253bd760a0b3f74df81d974f7711662996bf",
     "session-control.js": "dcde683415b90718593ce2a90d3d1aadb78bdc81b2d1ee7797421ad401b28d4d",
     "session-ended.html": "172305003b80a9b8ed70037174591a7d9abe802092bdb24aafbd167904b8f2cc"
   }

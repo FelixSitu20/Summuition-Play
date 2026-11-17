@@ -9,17 +9,17 @@ for (const html of [landing, player]) {
   for (const color of (html === landing ? ["#141414", "#292a2d", "#424448", "#e4e0d5"] : ["#3b3d40", "#d4d0c6", "#a4a7aa", "#bcb5a6", "#303236"])) assert.ok(style.includes(color), color);
   assert.doesNotMatch(style, /#(?:121213|1d1d1e|f2eee4|fffaf0|b8bcc1|aaa9a6|29292b)\b/i);
   assert.match(style, /font-family:Beholden/);
-  assert.match(style, /data:font\/ttf;base64,/);
+  if(html===landing)assert.match(style, /data:font\/ttf;base64,/);else {assert.match(style,/TemplateData\/Beholden-Regular.ttf/);assert.match(style,/TemplateData\/Beholden-Bold.ttf/);}
   assert.match(style, /data:image\/png;base64,/);
 }
 assert.match(landing, /background:#424448;color:#e4e0d5/);
 assert.match(landing, /\.play:hover\{background:#505155;color:#f1e5c9\}/);
 assert.match(player, /button:hover\{background:#bcb5a6;color:#303236\}/);
 assert.match(player, /#player:fullscreen #fullscreen\{background:#3b3d40ed\}/);
-assert.match(player, /canvas\{[^}]*background:#292a2d/);
-assert.match(player, /#status\{[^}]*background:#292a2d/);
+assert.match(player, /canvas\{[^}]*background:#101112/);
+assert.match(player, /#status\{[^}]*background:#101112/);
 assert.match(css(landing), /background:#141414/);
-assert.equal((css(player).match(/background:#292a2d/g)||[]).length,4);
+assert.equal((css(player).match(/background:#101112/g)||[]).length,4);
 assert.doesNotMatch(css(player), /background:#303134/);
 function luminance(hex) {
   const rgb = hex.match(/\w\w/g).map(x => parseInt(x, 16) / 255).map(x => x <= .04045 ? x / 12.92 : ((x + .055) / 1.055) ** 2.4);
