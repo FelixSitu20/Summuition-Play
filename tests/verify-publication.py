@@ -9,7 +9,7 @@ from urllib.parse import urljoin, urlsplit
 root = Path(__file__).resolve().parents[1] / 'guest'
 base = 'https://felixsitu20.github.io/Summuition-Play/'
 # Fail closed until the publisher pins the completed, reviewed test manifest.
-EXPECTED_MANIFEST_SHA256 = '8fa95b46ac523af41df9ed75218adc39d8cb9a1b3b2cef545b972bcfa98a3ee6'
+EXPECTED_MANIFEST_SHA256 = '77d85fc19439873a2137d6a8d320cf94e17265955732358a0767da9d6c497de3'
 manifest_bytes = (root / 'publication-manifest.json').read_bytes()
 assert hashlib.sha256(manifest_bytes).hexdigest() == EXPECTED_MANIFEST_SHA256, 'Unreviewed test manifest'
 manifest = json.loads(manifest_bytes)
@@ -46,7 +46,7 @@ for entry in entries:
     data = (root / entry['path']).read_bytes()
     assert len(data) == entry['bytes'], entry['path']
     assert hashlib.sha256(data).hexdigest() == entry['sha256'], entry['path']
-assert sum((root / f).stat().st_size for f in expected_files) == 27643438, 'Reviewed payload byte count changed'
+assert sum((root / f).stat().st_size for f in expected_files) == 27643283, 'Reviewed payload byte count changed'
 assert sum((root / f).stat().st_size for f in expected_files) < 32 * 1024 * 1024
 assert (root / '.nojekyll').read_bytes() == b''
 
@@ -84,8 +84,11 @@ for name in ('index.html', 'game/index.html', 'session-ended.html'):
         assert resolved.path.startswith('/Summuition-Play/')
     if name == 'index.html':
         assert page.refs == ['game/']
-        assert 'School sign-in is not enabled.' in html
-        assert 'Connected school-network TEST' in html and 'School approval and school-device verification are pending.' in html
+        assert '<details><summary>Privacy &amp; access</summary>' in html
+        assert '<details open' not in html
+        for text in ('For school use only', 'Summuition was created by Mr. Situ for our school. Please do not share the game or its link outside of school.', 'No account or email is needed to play. Your settings and recent games may be saved in this browser.', 'Multiplayer games use an online connection. The hosting provider may process connection information. There is no chat or friends feature.', 'Play is available only when enabled by your teacher.'):
+            assert text in html
+        assert 'Connected school-network TEST' not in html
         assert hashlib.sha256((root / name).read_bytes()).hexdigest() == next(e['sha256'] for e in manifest['hostFiles'] if e['path'] == name)
     elif name == 'game/index.html':
         for file in expected_builds:
