@@ -30,3 +30,7 @@ for (const [foreground, background] of [["e4e0d5","424448"],["b8b7b2","292a2d"],
   assert.ok((values[0]+.05)/(values[1]+.05) >= 4.5, `${foreground} on ${background}`);
 }
 console.log("PASS: neutral player background and new title-matched guest palette, retained font/artwork, fullscreen backdrop, hover ink and >=4.5:1 text contrast.");
+
+const paused=fs.readFileSync("guest/session-ended.html","utf8");
+assert.ok(css(paused).replace(/\r\n/g,'\n').startsWith(css(landing).replace(/\r\n/g,'\n')),"Paused page reuses complete guest frame/font/palette CSS");
+assert.match(paused,/id="reason"/);assert.match(paused,/href="\.\/">Back to Summuition/);
