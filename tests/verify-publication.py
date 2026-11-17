@@ -9,7 +9,7 @@ from urllib.parse import urljoin, urlsplit
 root = Path(__file__).resolve().parents[1] / 'guest'
 base = 'https://felixsitu20.github.io/Summuition-Play/'
 # Fail closed until the publisher pins the completed, reviewed test manifest.
-EXPECTED_MANIFEST_SHA256 = '0ee3be3504333d321d6adb06941bfc151a90807838e7fd61711fe51c37d363d5'
+EXPECTED_MANIFEST_SHA256 = 'be183bd3a255293a4e9a634c2fe9a235557ae6cd7e737a982d545012145be2a8'
 manifest_bytes = (root / 'publication-manifest.json').read_bytes()
 assert hashlib.sha256(manifest_bytes).hexdigest() == EXPECTED_MANIFEST_SHA256, 'Unreviewed test manifest'
 manifest = json.loads(manifest_bytes)
@@ -46,7 +46,7 @@ for entry in entries:
     data = (root / entry['path']).read_bytes()
     assert len(data) == entry['bytes'], entry['path']
     assert hashlib.sha256(data).hexdigest() == entry['sha256'], entry['path']
-assert sum((root / f).stat().st_size for f in expected_files) == 27985821, 'Reviewed payload byte count changed'
+assert sum((root / f).stat().st_size for f in expected_files) == 27989887, 'Reviewed payload byte count changed'
 assert sum((root / f).stat().st_size for f in expected_files) < 32 * 1024 * 1024
 assert (root / '.nojekyll').read_bytes() == b''
 

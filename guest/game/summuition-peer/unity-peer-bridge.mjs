@@ -127,7 +127,8 @@ export function createUnityPeerBridge({ generation, onEvent }, dependencies = {}
   const clear = dependencies.clearInterval ?? (handle => clearInterval(handle));
   const random = dependencies.random ?? (() => crypto.getRandomValues(new Uint32Array(1))[0]);
   const requestId = dependencies.requestId ?? (() => crypto.randomUUID());
-  let active = null, disposed = false;
+  let active = null, disposed = false, appearance = null;
+  const localProfile = (noun, title) => ({ ...peerProfile(noun, title), ...(appearance ?? {}) });
   const current = session => !disposed && active === session;
   function emit(session, kind, extra = {}) {
     if (!current(session)) return;
@@ -188,9 +189,12 @@ export function createUnityPeerBridge({ generation, onEvent }, dependencies = {}
     session.profileTimes.push(timestamp);
     if (session.frozen) return;
     try {
-      fields(message, ['type', 'noun', 'title']);
-      requireValue(Object.keys(message).length === 3);
-      session.remote = peerProfile(message.noun, message.title);
+      fields(message, appearance ? ['type', 'noun', 'title', 'hair', 'jacket'] : ['type', 'noun', 'title']);
+      const extended = Object.hasOwn(message, 'hair') || Object.hasOwn(message, 'jacket');
+      requireValue(Object.keys(message).length === (extended ? 5 : 3));
+      const remote = peerProfile(message.noun, message.title);
+      if (extended) { requireValue(integer(message.hair, 0, 5) && integer(message.jacket, 0, 5)); remote.hair = message.hair; remote.jacket = message.jacket; }
+      session.remote = remote;
     } catch { return; } // Optional nickname data never ends a valid match.
     emit(session, 'profile'); if (session.state) apply(session, session.state, true);
   }
@@ -219,7 +223,7 @@ export function createUnityPeerBridge({ generation, onEvent }, dependencies = {}
   async function begin(role, difficulty, code, noun, title, health = 5, cardCount = 5) {
     if (disposed || (active && !active.closed)) return false;
     let profile;
-    try { profile = peerProfile(noun, title); requireValue(role === 'host' ? integer(difficulty, 0, 3) && [3, 5, 7, 10].includes(health) && integer(cardCount, 2, 5) : /^\d{4}$/.test(code)); }
+    try { profile = localProfile(noun, title); requireValue(role === 'host' ? integer(difficulty, 0, 3) && [3, 5, 7, 10].includes(health) && integer(cardCount, 2, 5) : /^\d{4}$/.test(code)); }
     catch { return false; }
     const session = { role, seat: role === 'host' ? 0 : 1, code: '', profile, remote: null,
       frozen: false, rematchSubmitted: false, readySubmitted: false, loadedSubmitted: false, profileTimes: [], changedTimes: [], commandTimes: [],
@@ -279,6 +283,10 @@ export function createUnityPeerBridge({ generation, onEvent }, dependencies = {}
     return active && !disposed && !active.closed && integer(number, 1, 1000) && active.state?.matchId === matchId && active.state?.round === number && active.state?.phase === phase ? active : null;
   }
   return Object.freeze({
+    appearance(hair, jacket) {
+      if (disposed || (active && !active.closed) || !integer(hair, 0, 5) || !integer(jacket, 0, 5)) return false;
+      appearance = { hair, jacket }; return true;
+    },
     host: (difficulty, noun, title, health = 5, cardCount = 5) => begin('host', difficulty, '', noun, title, health, cardCount),
     join: (code, noun, title) => begin('guest', 0, code, noun, title),
     ready(number, matchId) {
@@ -310,7 +318,7 @@ export function createUnityPeerBridge({ generation, onEvent }, dependencies = {}
     },
     profile(noun, title) {
       const session = active; if (!session || disposed || session.closed || session.frozen || session.readySubmitted || session.state?.ready[session.seat]) return false;
-      let choice; try { choice = peerProfile(noun, title); } catch { return false; }
+      let choice; try { choice = localProfile(noun, title); } catch { return false; }
       if (choice.noun === session.profile.noun && choice.title === session.profile.title) return false;
       const timestamp = now(); session.changedTimes = session.changedTimes.filter(at => timestamp - at < 10000);
       if (session.changedTimes.length >= 5) return false;
