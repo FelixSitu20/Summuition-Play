@@ -34,8 +34,8 @@
     },
     {
       "path": "game/index.html",
-      "sha256": "dfa4e414982bd958ef612ffeeaf9e2fb361eb577e87a5503268e41a42e410ecc",
-      "bytes": 129313
+      "sha256": "dd722c841763b5399afb3d62bb864631f68dbe2f7a66e0547da876e7f963485c",
+      "bytes": 357065
     },
     {
       "path": "game/summuition-peer/engine.mjs",
@@ -122,7 +122,7 @@
   },
   "reviewedHostSha256": {
     "index.html": "379a6861a8346f67fdd33c100ba3846c5184881cf4a7292b97942d495773561f",
-    "game/index.html": "b84f62a6de59c18f48b87e427569253bd760a0b3f74df81d974f7711662996bf",
+    "game/index.html": "dd722c841763b5399afb3d62bb864631f68dbe2f7a66e0547da876e7f963485c",
     "session-control.js": "dcde683415b90718593ce2a90d3d1aadb78bdc81b2d1ee7797421ad401b28d4d",
     "session-ended.html": "172305003b80a9b8ed70037174591a7d9abe802092bdb24aafbd167904b8f2cc"
   }

@@ -54,3 +54,8 @@ const settle=()=>new Promise(r=>setImmediate(r));
 
 // Keep the softer palette and legibility checks in the existing publication gate.
 require('./palette.test.cjs');
+
+// Approved loading screen: retro frame, diamond-only number.
+assert.match(html, /\.loading-panel:before\{/);
+assert.doesNotMatch(html, /<div class="scale"/);
+assert.match(html, /<span id="percent">0<\/span>/);
