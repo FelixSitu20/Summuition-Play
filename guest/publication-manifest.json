@@ -7,34 +7,34 @@
   "phonePcVerified": false,
   "releaseReady": false,
   "contentAuditPassed": true,
-  "contentAuditSha256": "3b3e58b3aa11e887ed491bd919f2c0f7df2da4d19a0d4742fe6e8b9b80bacc9b",
+  "contentAuditSha256": "c192673d752dcf08c4fc09e3c98ac93e6abdc72f964b89bba5a3d586568a2d90",
   "desktopCanvas": true,
   "liveBridgeRoundTrip": true,
-  "builtUtc": "2026-11-17T06:58:36.9856473Z",
+  "builtUtc": "2026-11-18T15:30:48.2142747Z",
   "files": [
     {
-      "path": "game/Build/1f8d74b2fe29aa021524f7af05401483.loader.js",
-      "sha256": "bd6cbe0062c58d123e60a5a598111ca3185fdea900f7d812921c11c84fd172e8",
+      "path": "game/Build/2055bd2a4b5ad8891d84ec38080556c5.wasm.unityweb",
+      "sha256": "aaafbfded31390a6c70359cf8b691b147465dfd88157d61b0bf4c683b3dc8df4",
+      "bytes": 11119349
+    },
+    {
+      "path": "game/Build/70575295c7903c93d854a825d30de581.loader.js",
+      "sha256": "36d86a53a6d9d1b8147514b068d54a6844c7463243641aca19a72cb8466dadea",
       "bytes": 40316
     },
     {
-      "path": "game/Build/269f227ce3fea856fc4bef2595a1e871.framework.js.unityweb",
-      "sha256": "28e0c541a823cca957c61913dda4a28b6f4460f301c00fec158c7d6e5781dae6",
-      "bytes": 96814
+      "path": "game/Build/9634c49adbfba0b256c4a6743061531c.framework.js.unityweb",
+      "sha256": "8dbc5d9d7234e22b0aa1d5e0ca531d98a5e2ced26e88d83bcf7a421973e50085",
+      "bytes": 96789
     },
     {
-      "path": "game/Build/365f43d8b57fdcdf5291f9f9d461749d.data.unityweb",
-      "sha256": "fb7b42e3f98e2143daed7ce54b3436e61ed5ddcd7976578e6aab349b146ad622",
-      "bytes": 14167734
-    },
-    {
-      "path": "game/Build/3eda156543d2061cc90d4689f4806c71.wasm.unityweb",
-      "sha256": "0337e5227efe88ef45956c2ade7ae24fb76ce10f01098848726d55d9f7451903",
-      "bytes": 11123386
+      "path": "game/Build/d3d5516adb1581444b1e6abdc5a36b8f.data.unityweb",
+      "sha256": "4d2dff44c2a47fd75958d129e5d44e68d447cf3fe3508d3a0edf8bb1ec155273",
+      "bytes": 5430631
     },
     {
       "path": "game/index.html",
-      "sha256": "daf184710fe8b7384593c58006d4fed79b4d13f6c00da722e169fbc36ccc2616",
+      "sha256": "48cd2fa2a2629969495dfbc6e0ff61fd6848d3735eb8babccb5e4fc5bab86d43",
       "bytes": 357321
     },
     {
@@ -78,7 +78,7 @@
       "bytes": 115012
     }
   ],
-  "auditedPlayerIndexSha256": "d8d607887bef2685ce4145579e6c3bed670099d24cf4e6f9535a243353fc4d66",
+  "auditedPlayerIndexSha256": "754be826213a4ea2ca7cf42f45033133543f6d5c4062e3d6e4e11230f9250307",
   "mobileHostWrapperAdapted": true,
   "raidPilot": false,
   "hostFiles": [
@@ -122,8 +122,16 @@
   },
   "reviewedHostSha256": {
     "index.html": "379a6861a8346f67fdd33c100ba3846c5184881cf4a7292b97942d495773561f",
-    "game/index.html": "dd722c841763b5399afb3d62bb864631f68dbe2f7a66e0547da876e7f963485c",
     "session-control.js": "dcde683415b90718593ce2a90d3d1aadb78bdc81b2d1ee7797421ad401b28d4d",
-    "session-ended.html": "e30cae17c6c6ea006989ef99359f74ad77b6eaa65edfa27450618cdbcdadfe36"
-  }
+    "session-ended.html": "e30cae17c6c6ea006989ef99359f74ad77b6eaa65edfa27450618cdbcdadfe36",
+    "robots.txt": "a8f31103361fca68bef71fc69cff844b7c23bd3d64d2b872d74690cbda656bfc",
+    ".nojekyll": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "game/index.html": "48cd2fa2a2629969495dfbc6e0ff61fd6848d3735eb8babccb5e4fc5bab86d43"
+  },
+  "studentUpdate": true,
+  "localGuest": false,
+  "coopTwoPlayer": false,
+  "sessionGateStateManagedExternally": true,
+  "historicalPauseMetadataNote": "studentPlayEnabled and pausedSnapshotSha256 retain the original paused-package declaration. They are not the current live gate state. This update does not change the external session-control branch.",
+  "exactBuildVerificationSha256": "fa5bb80e9b7716d2ba8b6fc0e441d3cb8623db88536160f0a5b9cddbf58f120e"
 }
