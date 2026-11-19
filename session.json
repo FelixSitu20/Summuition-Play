@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "enabled": false,
-  "sessionId": "dbe1fe05-1b62-4ed7-ba28-2fe45e7bc019",
-  "updatedAt": "2026-11-18T22:46:05+00:00",
+  "enabled": true,
+  "sessionId": "b48cb7f1-bbc6-4846-a03c-8cb4421a2690",
+  "updatedAt": "2026-11-19T17:16:27+00:00",
   "closesAt": null
 }
